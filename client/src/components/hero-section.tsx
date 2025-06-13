@@ -23,7 +23,7 @@ export default function HeroSection({
             <span className="text-primary">urban living</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Locally owned and managed rental properties designed for young professionals who value character, community, and convenience.
+            Family owned and managed rental properties designed for young professionals who value character, community, and convenience.
           </p>
 
           {/* City Selector & Availability Filter */}
@@ -56,7 +56,7 @@ export default function HeroSection({
                 onClick={() => setAvailabilityFilter(false)}
                 className={!availabilityFilter ? "bg-primary text-white" : "text-foreground hover:bg-gray-100"}
               >
-                Leased
+                Not Available
               </Button>
             </div>
           </div>

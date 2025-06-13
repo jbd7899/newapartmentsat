@@ -1,21 +1,37 @@
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin } from "lucide-react";
-import type { Property } from "@shared/schema";
+import type { Property, Unit } from "@shared/schema";
 
 interface PropertyCardProps {
   property: Property;
 }
 
 export default function PropertyCard({ property }: PropertyCardProps) {
-  const hasAvailableUnits = true; // This would be calculated based on units data
+  const { data: units = [] } = useQuery<Unit[]>({
+    queryKey: [`/api/units`, property.id],
+    queryFn: async () => {
+      const response = await fetch(`/api/units?propertyId=${property.id}`, {
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error("Failed to fetch units");
+      return response.json();
+    },
+  });
+
+  const availableUnits = units.filter(unit => unit.isAvailable);
+  const hasAvailableUnits = availableUnits.length > 0;
+  const availabilityText = property.totalUnits > 1 
+    ? `${availableUnits.length}/${property.totalUnits} available`
+    : hasAvailableUnits ? "Available" : "Not Available";
 
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow group">
       <div className="relative overflow-hidden">
         <img
-          src={property.images[0] || "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"}
+          src={(property.images && property.images[0]) || "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"}
           alt={`${property.name} exterior`}
           className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
           loading="lazy"
@@ -26,7 +42,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-xl font-semibold text-foreground">{property.name}</h3>
           <Badge variant={hasAvailableUnits ? "default" : "secondary"}>
-            {hasAvailableUnits ? "Available" : "Leased"}
+            {availabilityText}
           </Badge>
         </div>
 

@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -18,7 +19,27 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { insertPropertySchema, insertUnitSchema } from "@shared/schema";
 import type { Property, Unit, LeadSubmission } from "@shared/schema";
-import { Plus, Edit, Trash, Upload } from "lucide-react";
+import { 
+  Plus, 
+  Edit, 
+  Trash, 
+  Upload, 
+  Building2, 
+  MapPin, 
+  Calendar, 
+  DollarSign, 
+  Eye, 
+  EyeOff,
+  ChevronDown,
+  ChevronRight,
+  Home,
+  Users,
+  Mail,
+  Phone,
+  CheckCircle,
+  XCircle,
+  Camera
+} from "lucide-react";
 import { z } from "zod";
 
 export default function Admin() {
@@ -27,6 +48,8 @@ export default function Admin() {
   const [isUnitDialogOpen, setIsUnitDialogOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
   const [editingUnit, setEditingUnit] = useState<Unit | null>(null);
+  const [expandedProperties, setExpandedProperties] = useState<Set<number>>(new Set());
+  const [selectedPropertyForUnit, setSelectedPropertyForUnit] = useState<number | null>(null);
 
   const { data: properties = [], isLoading: propertiesLoading } = useQuery<Property[]>({
     queryKey: ["/api/properties"],
@@ -164,18 +187,47 @@ export default function Admin() {
     setIsPropertyDialogOpen(true);
   };
 
-  const openUnitDialog = (unit?: Unit) => {
+  const openUnitDialog = (unit?: Unit, propertyId?: number) => {
     if (unit) {
       setEditingUnit(unit);
       unitForm.reset({
         ...unit,
-        availableDate: unit.availableDate ? new Date(unit.availableDate) : null,
+        availableDate: unit.availableDate ? new Date(unit.availableDate).toISOString().split('T')[0] : '',
       });
     } else {
       setEditingUnit(null);
-      unitForm.reset();
+      unitForm.reset({
+        propertyId: propertyId || 0,
+        unitNumber: "",
+        isAvailable: false,
+        availableDate: '',
+        rent: 0,
+        images: [],
+      });
     }
+    setSelectedPropertyForUnit(propertyId || null);
     setIsUnitDialogOpen(true);
+  };
+
+  const togglePropertyExpansion = (propertyId: number) => {
+    const newExpanded = new Set(expandedProperties);
+    if (newExpanded.has(propertyId)) {
+      newExpanded.delete(propertyId);
+    } else {
+      newExpanded.add(propertyId);
+    }
+    setExpandedProperties(newExpanded);
+  };
+
+  const toggleUnitAvailability = async (unitId: number, currentStatus: boolean) => {
+    try {
+      await updateUnitMutation.mutateAsync({
+        id: unitId,
+        data: { isAvailable: !currentStatus }
+      });
+    } catch (error) {
+      console.error('Failed to update unit availability');
+    }
   };
 
   return (
