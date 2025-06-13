@@ -54,9 +54,8 @@ export default function PropertyCard({ property }: PropertyCardProps) {
         </div>
 
         <div className="flex items-center space-x-4 text-sm text-gray-600 mb-4">
-          <span>{property.bedrooms === 0 ? 'Studio' : `${property.bedrooms} beds`}</span>
-          <span>{property.bathrooms} baths</span>
-          <span>{property.totalUnits} units</span>
+          <span>{property.totalUnits} {property.totalUnits === 1 ? 'unit' : 'units'}</span>
+          <span>{property.neighborhood}</span>
         </div>
 
         <Link href={`/property/${property.id}`}>
