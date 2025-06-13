@@ -66,7 +66,7 @@ export default function MapSection() {
     // Load Google Maps API
     if (!window.google) {
       const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBHLett8djBo62dDXj0EjCpkS8cfJlrWHY&callback=initMap`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_API_KEY || ''}&callback=initMap`;
       script.async = true;
       script.defer = true;
       
