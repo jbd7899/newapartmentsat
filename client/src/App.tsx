@@ -17,12 +17,12 @@ function Router() {
   return (
     <Switch>
       <Route path="/public" component={PublicHome} />
+      <Route path="/property/:id" component={PropertyDetail} />
       {isLoading || !isAuthenticated ? (
         <Route path="/" component={Landing} />
       ) : (
         <>
           <Route path="/" component={Home} />
-          <Route path="/property/:id" component={PropertyDetail} />
           <Route path="/admin" component={Admin} />
         </>
       )}
