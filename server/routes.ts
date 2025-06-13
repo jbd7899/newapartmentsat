@@ -9,7 +9,24 @@ import path from "path";
 import fs from "fs/promises";
 import { existsSync } from "fs";
 import sharp from "sharp";
+import { geocodeAddress } from "./geocode";
 
+async function populateMissingCoordinates() {
+  try {
+    const props = await storage.getProperties();
+    for (const prop of props) {
+      if (!prop.latitude || !prop.longitude) {
+        const addr = `${prop.address}, ${prop.city}, ${prop.state} ${prop.zipCode}`;
+        const geo = await geocodeAddress(addr);
+        if (geo) {
+          await storage.updateProperty(prop.id, { latitude: geo.lat, longitude: geo.lon });
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Failed to populate coordinates', err);
+  }
+}
 // Configure multer for photo uploads - use memory storage to avoid file system issues
 const upload = multer({ 
   storage: multer.memoryStorage(),
@@ -71,6 +88,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/properties", async (req, res) => {
     try {
       const validatedData = insertPropertySchema.parse(req.body);
+
+      if (!validatedData.latitude || !validatedData.longitude) {
+        const addr = `${validatedData.address}, ${validatedData.city}, ${validatedData.state} ${validatedData.zipCode}`;
+        const geo = await geocodeAddress(addr);
+        if (geo) {
+          validatedData.latitude = geo.lat;
+          validatedData.longitude = geo.lon;
+        }
+      }
+
       const property = await storage.createProperty(validatedData);
       res.status(201).json(property);
     } catch (error) {
@@ -85,6 +112,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const validatedData = insertPropertySchema.partial().parse(req.body);
+
+      if (
+        (!validatedData.latitude || !validatedData.longitude) &&
+        (validatedData.address || validatedData.city || validatedData.state || validatedData.zipCode)
+      ) {
+        const prop = await storage.getProperty(id);
+        if (prop) {
+          const addr = `${validatedData.address || prop.address}, ${validatedData.city || prop.city}, ${validatedData.state || prop.state} ${validatedData.zipCode || prop.zipCode}`;
+          const geo = await geocodeAddress(addr);
+          if (geo) {
+            validatedData.latitude = geo.lat;
+            validatedData.longitude = geo.lon;
+          }
+        }
+      }
       const property = await storage.updateProperty(id, validatedData);
       
       if (!property) {
@@ -369,6 +411,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/upload", async (req, res) => {
     res.status(501).json({ message: "File upload not implemented yet" });
   });
+
+  await populateMissingCoordinates();
 
   const httpServer = createServer(app);
   return httpServer;
