@@ -8,7 +8,7 @@ import Footer from "@/components/footer";
 import { useState } from "react";
 
 export default function Home() {
-  const [cityFilter, setCityFilter] = useState<string>("all");
+  const [cityFilter, setCityFilter] = useState<string>("atlanta");
   const [availabilityFilter, setAvailabilityFilter] = useState<boolean>(true);
 
   return (
@@ -20,7 +20,7 @@ export default function Home() {
         availabilityFilter={availabilityFilter}
         setAvailabilityFilter={setAvailabilityFilter}
       />
-      <MapSection />
+      <MapSection cityFilter={cityFilter} />
       <PropertyGrid 
         cityFilter={cityFilter}
         availabilityFilter={availabilityFilter}

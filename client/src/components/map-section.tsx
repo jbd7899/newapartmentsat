@@ -11,7 +11,11 @@ declare global {
   }
 }
 
-export default function MapSection() {
+interface MapSectionProps {
+  cityFilter: string;
+}
+
+export default function MapSection({ cityFilter }: MapSectionProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(false);
