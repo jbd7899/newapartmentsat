@@ -47,7 +47,8 @@ import {
   XCircle,
   Camera,
   AlertCircle,
-  RefreshCw
+  RefreshCw,
+  UserCheck
 } from "lucide-react";
 import { z } from "zod";
 
@@ -1224,26 +1225,29 @@ export default function Admin() {
                               <Mail className="w-4 h-4 mr-2" />
                               Contact
                             </Button>
-                  <button
-  className={
-    submission.contacted
-      ? "text-gray-500 border-gray-200"
-      : "text-blue-600 border-blue-200 hover:bg-blue-50"
-  }
-  onClick={async () => {
-    await apiRequest(
-      `/api/lead-submissions/${submission.id}`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contacted: !submission.contacted }),
-      }
-    );
-    leadSubmissions.refetch();
-  }}
->
-  <U…
-</button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className={
+                                submission.contacted
+                                  ? "text-gray-500 border-gray-200"
+                                  : "text-blue-600 border-blue-200 hover:bg-blue-50"
+                              }
+                              onClick={async () => {
+                                const response = await fetch(`/api/lead-submissions/${submission.id}`, {
+                                  method: "PUT",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({ contacted: !submission.contacted }),
+                                  credentials: "include",
+                                });
+                                if (response.ok) {
+                                  leadSubmissions.refetch();
+                                }
+                              }}
+                            >
+                              <UserCheck className="w-4 h-4 mr-2" />
+                              {submission.contacted ? "Mark Uncontacted" : "Mark Contacted"}
+                            </Button>
                           </div>
                         </CardContent>
                       </Card>
