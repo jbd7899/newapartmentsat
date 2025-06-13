@@ -13,12 +13,15 @@ export async function geocodeAddress(address: string): Promise<GeoResult | null>
     const res = await fetch(url);
     if (!res.ok) return null;
     const data = await res.json();
+
     if (data.status === 'OK' && Array.isArray(data.results) && data.results.length > 0) {
       const { lat, lng } = data.results[0].geometry.location;
       return { lat: String(lat), lon: String(lng) };
     }
+
     return null;
   } catch {
     return null;
   }
 }
+

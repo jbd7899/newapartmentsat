@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/useAuth";
+import { isUnauthorizedError } from "@/lib/authUtils";
 import Navigation from "@/components/navigation";
 import PhotoManager from "@/components/photo-manager";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -48,12 +50,28 @@ import { z } from "zod";
 
 export default function Admin() {
   const { toast } = useToast();
+  const { isAuthenticated, isLoading } = useAuth();
   const [isPropertyDialogOpen, setIsPropertyDialogOpen] = useState(false);
   const [isUnitDialogOpen, setIsUnitDialogOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
   const [editingUnit, setEditingUnit] = useState<Unit | null>(null);
   const [expandedProperties, setExpandedProperties] = useState<Set<number>>(new Set());
   const [photoManagerProperty, setPhotoManagerProperty] = useState<Property | null>(null);
+
+  // Redirect to home if not authenticated
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      toast({
+        title: "Unauthorized",
+        description: "You are logged out. Logging in again...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 500);
+      return;
+    }
+  }, [isAuthenticated, isLoading, toast]);
 
   // Queries with enhanced error handling
   const properties = useQuery({
