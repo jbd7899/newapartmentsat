@@ -11,32 +11,15 @@ import { existsSync } from "fs";
 
 // Configure multer for photo uploads
 const storage_config = multer.diskStorage({
-  destination: async (req, file, cb) => {
+  destination: (req, file, cb) => {
+    // Use temp directory for initial upload
+    const uploadPath = 'photos/temp/';
     try {
-      const { propertyId, propertyName, unitId, unitNumber, type } = req.body;
-      let uploadPath = 'photos/properties/';
-      
-      if (propertyId && propertyName) {
-        // Create property-specific folder structure matching our system
-        const cleanPropertyName = propertyName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        uploadPath += `${cleanPropertyName}/`;
-        
-        if (unitId && unitNumber) {
-          // Unit-specific photos
-          const cleanUnitNumber = unitNumber.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-          uploadPath += `unit-${cleanUnitNumber}/`;
-        } else if (type) {
-          // Property-level photos (exterior, interior, amenities)
-          uploadPath += `property-${type}/`;
-        }
-      }
-      
-      // Ensure directory exists
-      await fs.mkdir(uploadPath, { recursive: true });
+      require('fs').mkdirSync(uploadPath, { recursive: true });
       cb(null, uploadPath);
     } catch (error) {
-      console.error('Error creating upload directory:', error);
-      cb(new Error('Failed to create upload directory'), 'photos/properties/');
+      console.error('Error creating temp directory:', error);
+      cb(new Error('Failed to create temp directory'), uploadPath);
     }
   },
   filename: (req, file, cb) => {
@@ -210,7 +193,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Photo upload routes
   app.post("/api/photos/upload", (req, res) => {
-    upload.array('photos', 10)(req, res, (err) => {
+    upload.array('photos', 10)(req, res, async (err) => {
       if (err) {
         console.error('Upload error:', err);
         if (err.code === 'LIMIT_FILE_SIZE') {
@@ -225,25 +208,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: err.message || "Upload failed" });
       }
 
-      try {
-        const files = req.files as Express.Multer.File[];
-        if (!files || files.length === 0) {
-          return res.status(400).json({ message: "No files uploaded" });
+      const processFiles = async () => {
+        try {
+          const files = req.files as Express.Multer.File[];
+          if (!files || files.length === 0) {
+            return res.status(400).json({ message: "No files uploaded" });
+          }
+
+          const { propertyName, unitId, unitNumber, type } = req.body;
+          console.log('Upload params:', { propertyName, unitId, unitNumber, type });
+          
+          // Move files from temp to correct location
+          const uploadedFiles = [];
+          for (const file of files) {
+            console.log('Processing file:', file.filename, 'from path:', file.path);
+            
+            let targetPath = 'photos/properties/';
+            
+            if (propertyName) {
+              const cleanPropertyName = propertyName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+              targetPath += `${cleanPropertyName}/`;
+              
+              if (unitId && unitNumber) {
+                const cleanUnitNumber = unitNumber.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                targetPath += `unit-${cleanUnitNumber}/`;
+              } else if (type) {
+                targetPath += `property-${type}/`;
+              }
+            }
+            
+            console.log('Target path:', targetPath);
+            
+            // Ensure target directory exists
+            await fs.mkdir(targetPath, { recursive: true });
+            
+            // Move file from current location to target location
+            const finalPath = `${targetPath}${file.filename}`;
+            console.log('Moving from:', file.path, 'to:', finalPath);
+            
+            // Check if source file exists before moving
+            if (existsSync(file.path)) {
+              await fs.rename(file.path, finalPath);
+              console.log('File moved successfully');
+            } else {
+              console.log('Source file does not exist:', file.path);
+              // File might already be in the wrong location, let's check
+              const wrongPath = `photos/properties/${file.filename}`;
+              if (existsSync(wrongPath)) {
+                console.log('Found file in wrong location, moving from:', wrongPath);
+                await fs.rename(wrongPath, finalPath);
+              }
+            }
+            
+            uploadedFiles.push({
+              filename: file.filename,
+              originalName: file.originalname,
+              path: finalPath,
+              size: file.size,
+              url: `/photos/${finalPath.replace('photos/', '')}`
+            });
+          }
+
+          res.json({ files: uploadedFiles });
+        } catch (error) {
+          console.error('Processing error:', error);
+          res.status(500).json({ message: "Failed to process uploaded photos" });
         }
+      };
 
-        const uploadedFiles = files.map(file => ({
-          filename: file.filename,
-          originalName: file.originalname,
-          path: file.path,
-          size: file.size,
-          url: `/photos/${file.path.replace('photos/', '')}`
-        }));
-
-        res.json({ files: uploadedFiles });
-      } catch (error) {
-        console.error('Processing error:', error);
-        res.status(500).json({ message: "Failed to process uploaded photos" });
-      }
+      processFiles();
     });
   });
 
