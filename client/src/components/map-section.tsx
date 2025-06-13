@@ -131,7 +131,13 @@ export default function MapSection({ cityFilter }: MapSectionProps) {
     // Filter properties based on city selection
     const filteredProperties = cityFilter === "all" 
       ? properties 
-      : properties.filter(property => property.city.toLowerCase() === cityFilter);
+      : properties.filter(property => {
+          const cityMap: { [key: string]: string } = {
+            "atlanta": "Atlanta",
+            "dallas": "Dallas"
+          };
+          return property.city === (cityMap[cityFilter] || cityFilter);
+        });
 
     filteredProperties.forEach((property) => {
       let lat, lng;

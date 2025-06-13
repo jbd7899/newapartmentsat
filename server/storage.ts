@@ -63,7 +63,9 @@ export class DatabaseStorage implements IStorage {
     let query = db.select().from(properties);
     
     if (filters?.city) {
-      query = query.where(eq(properties.city, filters.city));
+      // Handle case-insensitive city filtering
+      const cityName = filters.city.charAt(0).toUpperCase() + filters.city.slice(1).toLowerCase();
+      query = query.where(eq(properties.city, cityName));
     }
     
     const allProperties = await query;

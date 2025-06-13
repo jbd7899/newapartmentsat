@@ -14,7 +14,12 @@ export default function PropertyGrid({ cityFilter, availabilityFilter }: Propert
     queryFn: async () => {
       const params = new URLSearchParams();
       if (cityFilter !== "all") {
-        params.append("city", cityFilter);
+        // Map frontend city values to backend expected format
+        const cityMap: { [key: string]: string } = {
+          "atlanta": "Atlanta",
+          "dallas": "Dallas"
+        };
+        params.append("city", cityMap[cityFilter] || cityFilter);
       }
       params.append("isAvailable", availabilityFilter.toString());
 
