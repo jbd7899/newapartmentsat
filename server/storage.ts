@@ -66,7 +66,28 @@ export class DatabaseStorage implements IStorage {
       query = query.where(eq(properties.city, filters.city));
     }
     
-    return await query;
+    const allProperties = await query;
+    
+    // If availability filter is specified, filter by properties that have available units
+    if (filters?.isAvailable !== undefined) {
+      const propertiesWithAvailability = await Promise.all(
+        allProperties.map(async (property) => {
+          const propertyUnits = await db.select().from(units).where(eq(units.propertyId, property.id));
+          const hasAvailableUnits = propertyUnits.some(unit => unit.isAvailable);
+          
+          if (filters.isAvailable && hasAvailableUnits) {
+            return property;
+          } else if (!filters.isAvailable && !hasAvailableUnits) {
+            return property;
+          }
+          return null;
+        })
+      );
+      
+      return propertiesWithAvailability.filter(property => property !== null) as Property[];
+    }
+    
+    return allProperties;
   }
 
   async getProperty(id: number): Promise<Property | undefined> {

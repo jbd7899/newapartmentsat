@@ -23,7 +23,7 @@ export default function HeroSection({
             <span className="text-primary">urban living</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Family owned and managed rental properties designed for young professionals who value character, community, and convenience.
+            Family owned and managed rental properties in vibrant urban neighborhoods.
           </p>
 
           {/* City Selector & Availability Filter */}
