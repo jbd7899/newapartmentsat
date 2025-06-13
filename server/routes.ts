@@ -158,7 +158,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/properties/:id", async (req, res) => {
+  app.delete("/api/properties/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const deleted = await storage.deleteProperty(id);
@@ -184,7 +184,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/units", async (req, res) => {
+  app.post("/api/units", isAuthenticated, async (req, res) => {
     try {
       const validatedData = insertUnitSchema.parse(req.body);
       const unit = await storage.createUnit(validatedData);
@@ -197,7 +197,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/units/:id", async (req, res) => {
+  app.put("/api/units/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validatedData = insertUnitSchema.partial().parse(req.body);
@@ -216,7 +216,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/units/:id", async (req, res) => {
+  app.delete("/api/units/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const deleted = await storage.deleteUnit(id);
@@ -231,8 +231,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Photo upload routes
-  app.post("/api/photos/upload", (req, res) => {
+  // Photo upload routes (protected)
+  app.post("/api/photos/upload", isAuthenticated, (req, res) => {
     upload.array('photos', 10)(req, res, async (err) => {
       if (err) {
         console.error('Upload error:', err);
