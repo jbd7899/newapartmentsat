@@ -241,15 +241,28 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="properties" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="properties">Properties</TabsTrigger>
-            <TabsTrigger value="units">Units</TabsTrigger>
-            <TabsTrigger value="leads">Lead Submissions</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 bg-gray-100 rounded-lg p-1">
+            <TabsTrigger value="properties" className="flex items-center gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm">
+              <Building2 className="w-4 h-4" />
+              Properties & Units
+            </TabsTrigger>
+            <TabsTrigger value="leads" className="flex items-center gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm">
+              <Users className="w-4 h-4" />
+              Lead Submissions
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="properties" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold text-foreground">Properties</h2>
+            <div className="flex justify-between items-center mb-6">
+              <div className="flex items-center gap-3">
+                <div className="bg-blue-100 p-2 rounded-lg">
+                  <Building2 className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-semibold text-foreground">Properties & Units</h2>
+                  <p className="text-sm text-gray-600">Manage your rental properties and unit availability</p>
+                </div>
+              </div>
               <Dialog open={isPropertyDialogOpen} onOpenChange={setIsPropertyDialogOpen}>
                 <DialogTrigger asChild>
                   <Button onClick={() => openPropertyDialog()} className="bg-primary hover:bg-primary/90">
@@ -439,48 +452,457 @@ export default function Admin() {
               </Dialog>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="space-y-4">
               {propertiesLoading ? (
-                <div className="col-span-full text-center py-8">
+                <div className="text-center py-8">
                   <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto"></div>
                   <p className="mt-4 text-muted-foreground">Loading properties...</p>
                 </div>
               ) : (
-                properties.map((property) => (
-                  <Card key={property.id}>
-                    <CardHeader>
-                      <CardTitle className="flex items-center justify-between">
-                        <span>{property.name}</span>
-                        <div className="flex space-x-1">
+                properties.map((property) => {
+                  const propertyUnits = units.filter(unit => unit.propertyId === property.id);
+                  const availableUnits = propertyUnits.filter(unit => unit.isAvailable);
+                  const isExpanded = expandedProperties.has(property.id);
+
+                  return (
+                    <Card key={property.id} className="overflow-hidden border-l-4 border-l-blue-500">
+                      <Collapsible open={isExpanded} onOpenChange={() => togglePropertyExpansion(property.id)}>
+                        <CollapsibleTrigger asChild>
+                          <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-4">
+                                <div className="bg-blue-100 p-2 rounded-lg">
+                                  <Home className="w-5 h-5 text-blue-600" />
+                                </div>
+                                <div>
+                                  <CardTitle className="text-lg font-semibold text-gray-900">
+                                    {property.name}
+                                  </CardTitle>
+                                  <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                                    <MapPin className="w-4 h-4" />
+                                    <span>{property.address}, {property.city}, {property.state}</span>
+                                  </div>
+                                  <div className="flex items-center gap-4 text-sm text-gray-600 mt-2">
+                                    <span className="bg-gray-100 px-2 py-1 rounded">
+                                      {property.bedrooms === 0 ? 'Studio' : `${property.bedrooms} bed`}
+                                    </span>
+                                    <span className="bg-gray-100 px-2 py-1 rounded">
+                                      {property.bathrooms} bath
+                                    </span>
+                                    <span className="bg-green-100 text-green-700 px-2 py-1 rounded">
+                                      {availableUnits.length}/{property.totalUnits} available
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    openPropertyDialog(property);
+                                  }}
+                                  className="bg-white hover:bg-gray-50"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    openUnitDialog(undefined, property.id);
+                                  }}
+                                  className="bg-green-50 text-green-600 hover:bg-green-100"
+                                >
+                                  <Plus className="w-4 h-4 mr-1" />
+                                  Unit
+                                </Button>
+                                {isExpanded ? (
+                                  <ChevronDown className="w-5 h-5 text-gray-400" />
+                                ) : (
+                                  <ChevronRight className="w-5 h-5 text-gray-400" />
+                                )}
+                              </div>
+                            </div>
+                          </CardHeader>
+                        </CollapsibleTrigger>
+
+                        <CollapsibleContent>
+                          <CardContent className="pt-0">
+                            <div className="border-t pt-4">
+                              <div className="flex items-center justify-between mb-4">
+                                <h4 className="font-medium text-gray-900 flex items-center gap-2">
+                                  <Building2 className="w-4 h-4" />
+                                  Units ({propertyUnits.length})
+                                </h4>
+                              </div>
+
+                              {propertyUnits.length === 0 ? (
+                                <div className="text-center py-6 bg-gray-50 rounded-lg">
+                                  <Home className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                                  <p className="text-gray-500 mb-3">No units added yet</p>
+                                  <Button
+                                    size="sm"
+                                    onClick={() => openUnitDialog(undefined, property.id)}
+                                    className="bg-blue-600 hover:bg-blue-700"
+                                  >
+                                    <Plus className="w-4 h-4 mr-2" />
+                                    Add First Unit
+                                  </Button>
+                                </div>
+                              ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                  {propertyUnits.map((unit) => (
+                                    <div
+                                      key={unit.id}
+                                      className={`p-4 rounded-lg border-2 transition-all ${
+                                        unit.isAvailable
+                                          ? 'border-green-200 bg-green-50'
+                                          : 'border-red-200 bg-red-50'
+                                      }`}
+                                    >
+                                      <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center gap-2">
+                                          <div className={`p-1 rounded ${
+                                            unit.isAvailable ? 'bg-green-100' : 'bg-red-100'
+                                          }`}>
+                                            {unit.isAvailable ? (
+                                              <CheckCircle className="w-4 h-4 text-green-600" />
+                                            ) : (
+                                              <XCircle className="w-4 h-4 text-red-600" />
+                                            )}
+                                          </div>
+                                          <span className="font-medium text-gray-900">
+                                            Unit {unit.unitNumber}
+                                          </span>
+                                        </div>
+                                        <div className="flex gap-1">
+                                          <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            onClick={() => openUnitDialog(unit)}
+                                            className="h-8 w-8 p-0"
+                                          >
+                                            <Edit className="w-3 h-3" />
+                                          </Button>
+                                          <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            onClick={() => toggleUnitAvailability(unit.id, unit.isAvailable)}
+                                            className="h-8 w-8 p-0"
+                                          >
+                                            {unit.isAvailable ? (
+                                              <EyeOff className="w-3 h-3" />
+                                            ) : (
+                                              <Eye className="w-3 h-3" />
+                                            )}
+                                          </Button>
+                                        </div>
+                                      </div>
+
+                                      <div className="space-y-2 text-sm">
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-gray-600">Status:</span>
+                                          <Badge 
+                                            variant={unit.isAvailable ? "default" : "secondary"}
+                                            className={unit.isAvailable ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}
+                                          >
+                                            {unit.isAvailable ? "Available" : "Not Available"}
+                                          </Badge>
+                                        </div>
+                                        
+                                        {unit.rent && (
+                                          <div className="flex items-center justify-between">
+                                            <span className="text-gray-600">Rent:</span>
+                                            <span className="font-medium text-gray-900 flex items-center gap-1">
+                                              <DollarSign className="w-3 h-3" />
+                                              {(unit.rent / 100).toLocaleString()}/mo
+                                            </span>
+                                          </div>
+                                        )}
+
+                                        {unit.availableDate && (
+                                          <div className="flex items-center justify-between">
+                                            <span className="text-gray-600">Available:</span>
+                                            <span className="text-gray-900 flex items-center gap-1">
+                                              <Calendar className="w-3 h-3" />
+                                              {new Date(unit.availableDate).toLocaleDateString()}
+                                            </span>
+                                          </div>
+                                        )}
+
+                                        <div className="pt-2 border-t">
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="w-full text-xs"
+                                            onClick={() => openUnitDialog(unit)}
+                                          >
+                                            <Camera className="w-3 h-3 mr-1" />
+                                            Manage Photos
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </CardContent>
+                        </CollapsibleContent>
+                      </Collapsible>
+                    </Card>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Unit Dialog */}
+            <Dialog open={isUnitDialogOpen} onOpenChange={setIsUnitDialogOpen}>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>
+                    {editingUnit ? "Edit Unit" : "Add New Unit"}
+                  </DialogTitle>
+                </DialogHeader>
+                <Form {...unitForm}>
+                  <form onSubmit={unitForm.handleSubmit(onUnitSubmit)} className="space-y-4">
+                    <FormField
+                      control={unitForm.control}
+                      name="propertyId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Property</FormLabel>
+                          <FormControl>
+                            <Select 
+                              onValueChange={(value) => field.onChange(parseInt(value))} 
+                              value={field.value?.toString()}
+                              disabled={!!selectedPropertyForUnit}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select property" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {properties.map((property) => (
+                                  <SelectItem key={property.id} value={property.id.toString()}>
+                                    {property.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={unitForm.control}
+                      name="unitNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Unit Number</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="e.g., 101, A1, etc." />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={unitForm.control}
+                      name="rent"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Monthly Rent ($)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              placeholder="1200"
+                              onChange={(e) => field.onChange(parseInt(e.target.value) * 100 || 0)}
+                              value={field.value ? field.value / 100 : ''}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={unitForm.control}
+                      name="availableDate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Available Date</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="date"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={unitForm.control}
+                      name="isAvailable"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">
+                              Available for Rent
+                            </FormLabel>
+                            <div className="text-sm text-muted-foreground">
+                              Mark this unit as available for new tenants
+                            </div>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <div className="flex justify-end space-x-2 pt-4">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setIsUnitDialogOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+                        {editingUnit ? "Update" : "Create"} Unit
+                      </Button>
+                    </div>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
+          </TabsContent>
+
+          <TabsContent value="leads" className="space-y-6">
+            <div className="flex justify-between items-center mb-6">
+              <div className="flex items-center gap-3">
+                <div className="bg-green-100 p-2 rounded-lg">
+                  <Users className="w-6 h-6 text-green-600" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-semibold text-foreground">Lead Submissions</h2>
+                  <p className="text-sm text-gray-600">View and manage prospective tenant inquiries</p>
+                </div>
+              </div>
+            </div>
+
+            {leadsLoading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto"></div>
+                <p className="mt-4 text-muted-foreground">Loading lead submissions...</p>
+              </div>
+            ) : leadSubmissions.length === 0 ? (
+              <div className="text-center py-12 bg-gray-50 rounded-lg">
+                <Mail className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No lead submissions yet</h3>
+                <p className="text-gray-500 max-w-md mx-auto">
+                  When potential tenants fill out your contact forms, their information will appear here for you to review and follow up.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {leadSubmissions.map((lead) => (
+                  <Card key={lead.id} className="border-l-4 border-l-green-500">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="bg-green-100 p-2 rounded-full">
+                              <Users className="w-4 h-4 text-green-600" />
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-gray-900">{lead.name}</h3>
+                              <p className="text-sm text-gray-600">New inquiry</p>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div className="flex items-center gap-2 text-sm">
+                              <Mail className="w-4 h-4 text-gray-400" />
+                              <span className="text-gray-600">Email:</span>
+                              <a 
+                                href={`mailto:${lead.email}`}
+                                className="text-blue-600 hover:text-blue-800 font-medium"
+                              >
+                                {lead.email}
+                              </a>
+                            </div>
+                            
+                            {lead.phone && (
+                              <div className="flex items-center gap-2 text-sm">
+                                <Phone className="w-4 h-4 text-gray-400" />
+                                <span className="text-gray-600">Phone:</span>
+                                <a 
+                                  href={`tel:${lead.phone}`}
+                                  className="text-blue-600 hover:text-blue-800 font-medium"
+                                >
+                                  {lead.phone}
+                                </a>
+                              </div>
+                            )}
+                          </div>
+
+                          {lead.message && (
+                            <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                              <h4 className="font-medium text-gray-900 mb-2">Message:</h4>
+                              <p className="text-gray-700 text-sm leading-relaxed">{lead.message}</p>
+                            </div>
+                          )}
+
+                          <div className="flex items-center gap-4 text-xs text-gray-500">
+                            <div className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              <span>Submitted {new Date(lead.createdAt).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-2 ml-4">
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => openPropertyDialog(property)}
+                            onClick={() => window.open(`mailto:${lead.email}`, '_blank')}
+                            className="bg-blue-50 text-blue-600 hover:bg-blue-100"
                           >
-                            <Edit className="w-4 h-4" />
+                            <Mail className="w-4 h-4 mr-1" />
+                            Reply
                           </Button>
+                          {lead.phone && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => window.open(`tel:${lead.phone}`, '_blank')}
+                              className="bg-green-50 text-green-600 hover:bg-green-100"
+                            >
+                              <Phone className="w-4 h-4 mr-1" />
+                              Call
+                            </Button>
+                          )}
                         </div>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        {property.address}, {property.city}, {property.state}
-                      </p>
-                      <div className="flex items-center space-x-4 text-sm">
-                        <span>{property.bedrooms === 0 ? 'Studio' : `${property.bedrooms} bed`}</span>
-                        <span>{property.bathrooms} bath</span>
-                        <span>{property.totalUnits} units</span>
                       </div>
                     </CardContent>
                   </Card>
-                ))
-              )}
-            </div>
+                ))}
+              </div>
+            )}
           </TabsContent>
-
-          <TabsContent value="units" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold text-foreground">Units</h2>
+        </Tabs>
+      </div>
+    </div>
+  );
+}
               <Dialog open={isUnitDialogOpen} onOpenChange={setIsUnitDialogOpen}>
                 <DialogTrigger asChild>
                   <Button onClick={() => openUnitDialog()} className="bg-primary hover:bg-primary/90">
