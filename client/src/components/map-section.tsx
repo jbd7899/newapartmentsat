@@ -126,11 +126,6 @@ export default function MapSection({ cityFilter, setCityFilter, availabilityFilt
     // Clear existing markers
     const markers: any[] = [];
 
-    // Default coordinates for properties that don't have lat/lng
-    const defaultCoordinates = {
-      "The Loft District": { lat: 33.7701, lng: -84.3870 },
-      "Skyline Studios": { lat: 32.7767, lng: -96.7970 },
-    };
 
     // Filter properties based on city selection
     const filteredProperties = cityFilter === "all" 
@@ -144,22 +139,11 @@ export default function MapSection({ cityFilter, setCityFilter, availabilityFilt
         });
 
     filteredProperties.forEach((property) => {
-      let lat, lng;
-      
-      // Use stored coordinates if available, otherwise use defaults
-      if (property.latitude && property.longitude) {
-        lat = parseFloat(property.latitude);
-        lng = parseFloat(property.longitude);
-      } else {
-        const coords = defaultCoordinates[property.name as keyof typeof defaultCoordinates];
-        if (coords) {
-          lat = coords.lat;
-          lng = coords.lng;
-        } else {
-          // Skip properties without coordinates
-          return;
-        }
+      if (!property.latitude || !property.longitude) {
+        return;
       }
+      const lat = parseFloat(property.latitude);
+      const lng = parseFloat(property.longitude);
 
       const marker = new window.google.maps.Marker({
         position: { lat, lng },
