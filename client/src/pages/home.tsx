@@ -20,7 +20,12 @@ export default function Home() {
         availabilityFilter={availabilityFilter}
         setAvailabilityFilter={setAvailabilityFilter}
       />
-      <MapSection cityFilter={cityFilter} />
+      <MapSection 
+        cityFilter={cityFilter}
+        setCityFilter={setCityFilter}
+        availabilityFilter={availabilityFilter}
+        setAvailabilityFilter={setAvailabilityFilter}
+      />
       <PropertyGrid 
         cityFilter={cityFilter}
         availabilityFilter={availabilityFilter}

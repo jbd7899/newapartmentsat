@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MapPin, Plus, Minus } from "lucide-react";
 import type { Property } from "@shared/schema";
 
@@ -13,9 +14,12 @@ declare global {
 
 interface MapSectionProps {
   cityFilter: string;
+  setCityFilter: (city: string) => void;
+  availabilityFilter: boolean;
+  setAvailabilityFilter: (available: boolean) => void;
 }
 
-export default function MapSection({ cityFilter }: MapSectionProps) {
+export default function MapSection({ cityFilter, setCityFilter, availabilityFilter, setAvailabilityFilter }: MapSectionProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(false);
