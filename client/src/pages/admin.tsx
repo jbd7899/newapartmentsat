@@ -286,6 +286,16 @@ export default function Admin() {
     }
   };
 
+  const deleteUnit = async (unitId: number) => {
+    if (window.confirm('Are you sure you want to delete this unit? This action cannot be undone.')) {
+      try {
+        await deleteUnitMutation.mutateAsync(unitId);
+      } catch (error) {
+        console.error('Failed to delete unit');
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
