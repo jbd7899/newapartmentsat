@@ -56,7 +56,11 @@ const upload = multer({
     }
   },
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
+    fileSize: 5 * 1024 * 1024, // 5MB per file
+    files: 10, // Max 10 files
+    fieldSize: 1024 * 1024, // 1MB for form fields
+    fieldNameSize: 100,
+    fields: 20
   }
 });
 
@@ -205,25 +209,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Photo upload routes
-  app.post("/api/photos/upload", upload.array('photos', 10), async (req, res) => {
-    try {
-      const files = req.files as Express.Multer.File[];
-      if (!files || files.length === 0) {
-        return res.status(400).json({ message: "No files uploaded" });
+  app.post("/api/photos/upload", (req, res) => {
+    upload.array('photos', 10)(req, res, (err) => {
+      if (err) {
+        console.error('Upload error:', err);
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          return res.status(400).json({ message: "File too large. Maximum size is 5MB per file." });
+        }
+        if (err.code === 'LIMIT_FILE_COUNT') {
+          return res.status(400).json({ message: "Too many files. Maximum is 10 files per upload." });
+        }
+        if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+          return res.status(400).json({ message: "Unexpected file field. Use 'photos' field name." });
+        }
+        return res.status(400).json({ message: err.message || "Upload failed" });
       }
 
-      const uploadedFiles = files.map(file => ({
-        filename: file.filename,
-        originalName: file.originalname,
-        path: file.path,
-        size: file.size,
-        url: `/photos/${file.path.replace('photos/', '')}`
-      }));
+      try {
+        const files = req.files as Express.Multer.File[];
+        if (!files || files.length === 0) {
+          return res.status(400).json({ message: "No files uploaded" });
+        }
 
-      res.json({ files: uploadedFiles });
-    } catch (error) {
-      res.status(500).json({ message: "Failed to upload photos" });
-    }
+        const uploadedFiles = files.map(file => ({
+          filename: file.filename,
+          originalName: file.originalname,
+          path: file.path,
+          size: file.size,
+          url: `/photos/${file.path.replace('photos/', '')}`
+        }));
+
+        res.json({ files: uploadedFiles });
+      } catch (error) {
+        console.error('Processing error:', error);
+        res.status(500).json({ message: "Failed to process uploaded photos" });
+      }
+    });
   });
 
   // Get photos for a property

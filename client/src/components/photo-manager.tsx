@@ -40,7 +40,10 @@ export default function PhotoManager({ property, units, onClose }: PhotoManagerP
         method: 'POST',
         body: formData
       });
-      if (!response.ok) throw new Error('Upload failed');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Upload failed');
+      }
       return response.json();
     },
     onSuccess: () => {
@@ -49,8 +52,12 @@ export default function PhotoManager({ property, units, onClose }: PhotoManagerP
       queryClient.invalidateQueries({ queryKey: ['/api/photos/property', property.id] });
       toast({ title: "Photos uploaded successfully" });
     },
-    onError: () => {
-      toast({ title: "Upload failed", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ 
+        title: "Upload failed", 
+        description: error.message,
+        variant: "destructive" 
+      });
     }
   });
 
