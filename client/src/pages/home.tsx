@@ -1,4 +1,5 @@
 import { useAuth } from "@/hooks/useAuth";
+import type { User } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Building, Users, LogOut } from "lucide-react";
@@ -19,7 +20,7 @@ export default function Home() {
     window.location.href = "/api/logout";
   };
 
-  const getUserInitials = (user: any) => {
+  const getUserInitials = (user: User | undefined) => {
     if (user?.firstName && user?.lastName) {
       return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
     }
@@ -29,7 +30,7 @@ export default function Home() {
     return "U";
   };
 
-  const getUserDisplayName = (user: any) => {
+  const getUserDisplayName = (user: User | undefined) => {
     if (user?.firstName && user?.lastName) {
       return `${user.firstName} ${user.lastName}`;
     }
@@ -60,7 +61,10 @@ export default function Home() {
               
               <div className="flex items-center space-x-3">
                 <Avatar className="h-9 w-9">
-                  <AvatarImage src={user?.profileImageUrl} alt={getUserDisplayName(user)} />
+                  <AvatarImage
+                    src={user?.profileImageUrl ?? undefined}
+                    alt={getUserDisplayName(user)}
+                  />
                   <AvatarFallback>{getUserInitials(user)}</AvatarFallback>
                 </Avatar>
                 <div className="hidden md:block">
