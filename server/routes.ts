@@ -8,6 +8,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs/promises";
 import { existsSync } from "fs";
+import sharp from "sharp";
 
 // Configure multer for photo uploads - use memory storage to avoid file system issues
 const upload = multer({ 
@@ -20,7 +21,7 @@ const upload = multer({
     }
   },
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB per file
+    fileSize: 20 * 1024 * 1024, // 20MB per file (will be compressed down)
     files: 10, // Max 10 files
     fieldSize: 1024 * 1024, // 1MB for form fields
     fieldNameSize: 100,
@@ -178,7 +179,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (err) {
         console.error('Upload error:', err);
         if (err.code === 'LIMIT_FILE_SIZE') {
-          return res.status(400).json({ message: "File too large. Maximum size is 5MB per file." });
+          return res.status(400).json({ message: "File too large. Maximum size is 20MB per file." });
         }
         if (err.code === 'LIMIT_FILE_COUNT') {
           return res.status(400).json({ message: "Too many files. Maximum is 10 files per upload." });
@@ -218,20 +219,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Ensure target directory exists
             await fs.mkdir(targetPath, { recursive: true });
             
-            // Generate filename and save from memory buffer
+            // Generate filename and compress image
             const timestamp = Date.now();
             const sanitizedName = file.originalname.toLowerCase().replace(/[^a-z0-9.]+/g, '-');
-            const filename = `${timestamp}-${sanitizedName}`;
+            const nameWithoutExt = sanitizedName.replace(/\.[^/.]+$/, "");
+            const filename = `${timestamp}-${nameWithoutExt}.jpg`; // Convert all to JPG for consistency
             const finalPath = `${targetPath}${filename}`;
             
-            // Write file from memory buffer to disk
-            await fs.writeFile(finalPath, file.buffer);
+            // Compress and convert image using Sharp
+            const compressedBuffer = await sharp(file.buffer)
+              .jpeg({ 
+                quality: 80, // Good quality with significant compression
+                progressive: true 
+              })
+              .resize(1920, 1080, { 
+                fit: 'inside', // Maintain aspect ratio
+                withoutEnlargement: true // Don't upscale small images
+              })
+              .toBuffer();
+            
+            // Write compressed file to disk
+            await fs.writeFile(finalPath, compressedBuffer);
             
             uploadedFiles.push({
               filename: filename,
               originalName: file.originalname,
               path: finalPath,
-              size: file.size,
+              size: compressedBuffer.length, // Use compressed file size
               url: `/photos/${finalPath.replace('photos/', '')}`
             });
           }
