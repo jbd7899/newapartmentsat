@@ -1,12 +1,16 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { config, validateProductionConfig, addSecurityHeaders } from "./config";
 
 const app = express();
 
 // Set NODE_ENV based on environment variable, defaulting to development
 const nodeEnv = process.env.NODE_ENV || 'development';
 app.set('env', nodeEnv);
+
+// Add security headers for production deployment
+addSecurityHeaders(app);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -43,6 +47,9 @@ app.use((req, res, next) => {
 
 (async () => {
   try {
+    // Validate production configuration
+    validateProductionConfig();
+
     const server = await registerRoutes(app);
 
     app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -61,11 +68,12 @@ app.use((req, res, next) => {
     }
 
     // Server configuration for both development and production
-    const port = process.env.PORT || 5000;
-    const host = process.env.HOST || "0.0.0.0";
-    
-    server.listen(port, host, () => {
-      log(`Server running in ${nodeEnv} mode on ${host}:${port}`);
+    server.listen({
+      port: config.port,
+      host: config.host,
+      reusePort: true,
+    }, () => {
+      log(`Server running in ${config.nodeEnv} mode on ${config.host}:${config.port}`);
     });
 
     // Graceful shutdown handling
