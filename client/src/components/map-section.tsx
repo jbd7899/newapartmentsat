@@ -222,7 +222,7 @@ export default function MapSection({ cityFilter, setCityFilter, availabilityFilt
   }, [mapInstance, properties, cityFilter]);
 
   return (
-    <section className="py-12 bg-white">
+    <section className="py-12 bg-white pt-[0px] pb-[0px]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
 
