@@ -108,81 +108,157 @@ export default function Admin() {
   // Mutations
   const createPropertyMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest("/api/properties", "POST", data);
-      return response;
+      try {
+        const response = await apiRequest("/api/properties", "POST", data);
+        return response;
+      } catch (error: any) {
+        const errorMessage = error?.message || "Failed to create property";
+        throw new Error(errorMessage);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/properties"] });
       setIsPropertyDialogOpen(false);
       propertyForm.reset();
-      toast({ title: "Property created successfully" });
+      toast({ 
+        title: "Success", 
+        description: "Property created successfully" 
+      });
     },
-    onError: (error) => {
-      toast({ title: "Error creating property", variant: "destructive" });
+    onError: (error: any) => {
+      console.error("Create property error:", error);
+      toast({ 
+        title: "Failed to create property", 
+        description: error.message || "Please check your input and try again",
+        variant: "destructive" 
+      });
     },
   });
 
   const updatePropertyMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: any }) => {
-      const response = await apiRequest(`/api/properties/${id}`, "PATCH", data);
-      return response;
+      try {
+        const response = await apiRequest(`/api/properties/${id}`, "PATCH", data);
+        return response;
+      } catch (error: any) {
+        const errorMessage = error?.message || "Failed to update property";
+        throw new Error(errorMessage);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/properties"] });
       setIsPropertyDialogOpen(false);
       propertyForm.reset();
       setEditingProperty(null);
-      toast({ title: "Property updated successfully" });
+      toast({ 
+        title: "Success", 
+        description: "Property updated successfully" 
+      });
     },
-    onError: (error) => {
-      toast({ title: "Error updating property", variant: "destructive" });
+    onError: (error: any) => {
+      console.error("Update property error:", error);
+      toast({ 
+        title: "Failed to update property", 
+        description: error.message || "Please check your input and try again",
+        variant: "destructive" 
+      });
     },
   });
 
   const createUnitMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest("/api/units", "POST", data);
-      return response;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/units"] });
-      setIsUnitDialogOpen(false);
-      unitForm.reset();
-      toast({ title: "Unit created successfully" });
-    },
-    onError: (error) => {
-      toast({ title: "Error creating unit", variant: "destructive" });
-    },
-  });
-
-  const updateUnitMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: any }) => {
-      const response = await apiRequest(`/api/units/${id}`, "PATCH", data);
-      return response;
+      try {
+        // Validate required fields
+        if (!data.propertyId || !data.unitNumber) {
+          throw new Error("Property and unit number are required");
+        }
+        const response = await apiRequest("/api/units", "POST", data);
+        return response;
+      } catch (error: any) {
+        const errorMessage = error?.message || "Failed to create unit";
+        throw new Error(errorMessage);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/units"] });
       setIsUnitDialogOpen(false);
       unitForm.reset();
       setEditingUnit(null);
-      toast({ title: "Unit updated successfully" });
+      toast({ 
+        title: "Success", 
+        description: "Unit created successfully" 
+      });
     },
-    onError: (error) => {
-      toast({ title: "Error updating unit", variant: "destructive" });
+    onError: (error: any) => {
+      console.error("Create unit error:", error);
+      toast({ 
+        title: "Failed to create unit", 
+        description: error.message || "Please check your input and try again",
+        variant: "destructive" 
+      });
+    },
+  });
+
+  const updateUnitMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: any }) => {
+      try {
+        if (!id) {
+          throw new Error("Unit ID is required");
+        }
+        const response = await apiRequest(`/api/units/${id}`, "PATCH", data);
+        return response;
+      } catch (error: any) {
+        const errorMessage = error?.message || "Failed to update unit";
+        throw new Error(errorMessage);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/units"] });
+      setIsUnitDialogOpen(false);
+      unitForm.reset();
+      setEditingUnit(null);
+      toast({ 
+        title: "Success", 
+        description: "Unit updated successfully" 
+      });
+    },
+    onError: (error: any) => {
+      console.error("Update unit error:", error);
+      toast({ 
+        title: "Failed to update unit", 
+        description: error.message || "Please check your input and try again",
+        variant: "destructive" 
+      });
     },
   });
 
   const deleteUnitMutation = useMutation({
     mutationFn: async (unitId: number) => {
-      const response = await apiRequest(`/api/units/${unitId}`, "DELETE");
-      return response;
+      try {
+        if (!unitId) {
+          throw new Error("Unit ID is required");
+        }
+        const response = await apiRequest(`/api/units/${unitId}`, "DELETE");
+        return response;
+      } catch (error: any) {
+        const errorMessage = error?.message || "Failed to delete unit";
+        throw new Error(errorMessage);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/units"] });
-      toast({ title: "Unit deleted successfully" });
+      toast({ 
+        title: "Success", 
+        description: "Unit deleted successfully" 
+      });
     },
-    onError: (error) => {
-      toast({ title: "Error deleting unit", variant: "destructive" });
+    onError: (error: any) => {
+      console.error("Delete unit error:", error);
+      toast({ 
+        title: "Failed to delete unit", 
+        description: error.message || "Unable to delete unit. Please try again.",
+        variant: "destructive" 
+      });
     },
   });
 
@@ -846,6 +922,9 @@ export default function Admin() {
                 </Form>
               </DialogContent>
             </Dialog>
+                </div>
+              </>
+            )}
           </TabsContent>
 
           <TabsContent value="leads" className="space-y-6">
