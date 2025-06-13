@@ -423,6 +423,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/lead-submissions/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updated = await storage.updateLeadSubmission(id, req.body);
+      if (!updated) {
+        return res.status(404).json({ message: "Submission not found" });
+      }
+      res.json(updated);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update submission" });
+    }
+  });
+
   // File upload would be implemented here
   app.post("/api/upload", async (req, res) => {
     res.status(501).json({ message: "File upload not implemented yet" });

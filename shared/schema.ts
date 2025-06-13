@@ -14,6 +14,9 @@ export const properties = pgTable("properties", {
   totalUnits: integer("total_units").notNull(),
   description: text("description"),
   neighborhood: text("neighborhood"),
+  amenities: text("amenities"),
+  petPolicy: text("pet_policy"),
+  floorPlans: text("floor_plans"),
   images: text("images").array().default([]),
   latitude: text("latitude"),
   longitude: text("longitude"),
@@ -37,6 +40,7 @@ export const leadSubmissions = pgTable("lead_submissions", {
   moveInDate: timestamp("move_in_date"),
   desiredBedrooms: text("desired_bedrooms"),
   additionalInfo: text("additional_info"),
+  contacted: boolean("contacted").notNull().default(false),
   submittedAt: timestamp("submitted_at").defaultNow(),
 });
 

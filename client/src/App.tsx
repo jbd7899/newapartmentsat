@@ -8,6 +8,7 @@ import Home from "@/pages/home";
 import Landing from "@/pages/landing";
 import PropertyDetail from "@/pages/property-detail";
 import Admin from "@/pages/admin";
+import PublicHome from "@/pages/public-home";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -15,6 +16,7 @@ function Router() {
 
   return (
     <Switch>
+      <Route path="/public" component={PublicHome} />
       {isLoading || !isAuthenticated ? (
         <Route path="/" component={Landing} />
       ) : (
