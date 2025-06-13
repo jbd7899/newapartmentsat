@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import PropertyCard from "./property-card";
 import { Button } from "@/components/ui/button";
+import { AlertCircle, RefreshCw } from "lucide-react";
 import type { Property } from "@shared/schema";
 
 interface PropertyGridProps {
@@ -9,25 +10,31 @@ interface PropertyGridProps {
 }
 
 export default function PropertyGrid({ cityFilter, availabilityFilter }: PropertyGridProps) {
-  const { data: properties = [], isLoading } = useQuery<Property[]>({
+  const { data: properties = [], isLoading, isError, error, refetch } = useQuery<Property[]>({
     queryKey: ["/api/properties", cityFilter, availabilityFilter],
     queryFn: async () => {
-      const params = new URLSearchParams();
-      if (cityFilter !== "all") {
-        // Map frontend city values to backend expected format
-        const cityMap: { [key: string]: string } = {
-          "atlanta": "Atlanta",
-          "dallas": "Dallas"
-        };
-        params.append("city", cityMap[cityFilter] || cityFilter);
-      }
-      params.append("isAvailable", availabilityFilter.toString());
+      try {
+        const params = new URLSearchParams();
+        if (cityFilter !== "all") {
+          // Map frontend city values to backend expected format
+          const cityMap: { [key: string]: string } = {
+            "atlanta": "Atlanta",
+            "dallas": "Dallas"
+          };
+          params.append("city", cityMap[cityFilter] || cityFilter);
+        }
+        params.append("isAvailable", availabilityFilter.toString());
 
-      const response = await fetch(`/api/properties?${params.toString()}`, {
-        credentials: "include",
-      });
-      if (!response.ok) throw new Error("Failed to fetch properties");
-      return response.json();
+        const response = await fetch(`/api/properties?${params.toString()}`, {
+          credentials: "include",
+        });
+        if (!response.ok) {
+          throw new Error(`Failed to fetch properties: ${response.status} ${response.statusText}`);
+        }
+        return response.json();
+      } catch (err: any) {
+        throw new Error(err?.message || "Unable to load properties");
+      }
     },
   });
 
@@ -58,6 +65,24 @@ export default function PropertyGrid({ cityFilter, availabilityFilter }: Propert
                 </div>
               </div>
             ))}
+          </div>
+        ) : isError ? (
+          <div className="text-center py-16">
+            <div className="max-w-md mx-auto bg-red-50 border border-red-200 rounded-lg p-6">
+              <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+              <h3 className="text-red-800 font-medium mb-2">Failed to Load Properties</h3>
+              <p className="text-red-600 text-sm mb-4">
+                {error?.message || "Unable to fetch properties. Please check your connection and try again."}
+              </p>
+              <Button 
+                onClick={() => refetch()} 
+                variant="outline"
+                className="border-red-200 text-red-700 hover:bg-red-50"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Try Again
+              </Button>
+            </div>
           </div>
         ) : properties.length === 0 ? (
           <div className="text-center py-16">

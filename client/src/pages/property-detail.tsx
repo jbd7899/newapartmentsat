@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Switch } from "@/components/ui/switch";
-import { MapPin, Bed, Bath, Building } from "lucide-react";
+import { MapPin, Bed, Bath, Building, AlertCircle, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import type { Property, Unit } from "@shared/schema";
 
@@ -16,20 +16,68 @@ export default function PropertyDetail() {
   const { id } = useParams();
   const [selectedDate, setSelectedDate] = useState<Date>();
 
-  const { data: property, isLoading: propertyLoading } = useQuery<Property>({
+  const { data: property, isLoading: propertyLoading, isError: propertyError, error: propertyErrorMsg, refetch: refetchProperty } = useQuery<Property>({
     queryKey: [`/api/properties/${id}`],
+    retry: 2,
+    retryDelay: 1000,
   });
 
-  const { data: units = [], isLoading: unitsLoading } = useQuery<Unit[]>({
+  const { data: units = [], isLoading: unitsLoading, isError: unitsError, error: unitsErrorMsg, refetch: refetchUnits } = useQuery<Unit[]>({
     queryKey: [`/api/units`, id],
     queryFn: async () => {
-      const response = await fetch(`/api/units?propertyId=${id}`, {
-        credentials: "include",
-      });
-      if (!response.ok) throw new Error("Failed to fetch units");
-      return response.json();
+      try {
+        const response = await fetch(`/api/units?propertyId=${id}`, {
+          credentials: "include",
+        });
+        if (!response.ok) {
+          throw new Error(`Failed to fetch units: ${response.status} ${response.statusText}`);
+        }
+        return response.json();
+      } catch (err: any) {
+        throw new Error(err?.message || "Unable to load units");
+      }
     },
+    retry: 2,
+    retryDelay: 1000,
   });
+
+  // Handle error states
+  if (propertyError || unitsError) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center max-w-md mx-auto bg-red-50 border border-red-200 rounded-lg p-8">
+            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h2 className="text-red-800 font-semibold text-xl mb-2">Error Loading Property</h2>
+            <p className="text-red-600 mb-6">
+              {propertyErrorMsg?.message || unitsErrorMsg?.message || "Unable to load property details. Please try again."}
+            </p>
+            <div className="flex gap-3 justify-center">
+              <Button 
+                onClick={() => {
+                  refetchProperty();
+                  refetchUnits();
+                }} 
+                variant="outline"
+                className="border-red-200 text-red-700 hover:bg-red-50"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Try Again
+              </Button>
+              <Button 
+                onClick={() => window.history.back()}
+                variant="secondary"
+              >
+                Go Back
+              </Button>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (propertyLoading || unitsLoading) {
     return (
