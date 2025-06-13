@@ -9,28 +9,9 @@ import path from "path";
 import fs from "fs/promises";
 import { existsSync } from "fs";
 
-// Configure multer for photo uploads
-const storage_config = multer.diskStorage({
-  destination: (req, file, cb) => {
-    // Use temp directory for initial upload
-    const uploadPath = 'photos/temp/';
-    try {
-      require('fs').mkdirSync(uploadPath, { recursive: true });
-      cb(null, uploadPath);
-    } catch (error) {
-      console.error('Error creating temp directory:', error);
-      cb(new Error('Failed to create temp directory'), uploadPath);
-    }
-  },
-  filename: (req, file, cb) => {
-    const timestamp = Date.now();
-    const sanitizedName = file.originalname.toLowerCase().replace(/[^a-z0-9.]+/g, '-');
-    cb(null, `${timestamp}-${sanitizedName}`);
-  }
-});
-
+// Configure multer for photo uploads - use memory storage to avoid file system issues
 const upload = multer({ 
-  storage: storage_config,
+  storage: multer.memoryStorage(),
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
@@ -216,13 +197,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
 
           const { propertyName, unitId, unitNumber, type } = req.body;
-          console.log('Upload params:', { propertyName, unitId, unitNumber, type });
           
-          // Move files from temp to correct location
+          // Process files from memory storage and save to correct location
           const uploadedFiles = [];
           for (const file of files) {
-            console.log('Processing file:', file.filename, 'from path:', file.path);
-            
             let targetPath = 'photos/properties/';
             
             if (propertyName) {
@@ -237,31 +215,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
               }
             }
             
-            console.log('Target path:', targetPath);
-            
             // Ensure target directory exists
             await fs.mkdir(targetPath, { recursive: true });
             
-            // Move file from current location to target location
-            const finalPath = `${targetPath}${file.filename}`;
-            console.log('Moving from:', file.path, 'to:', finalPath);
+            // Generate filename and save from memory buffer
+            const timestamp = Date.now();
+            const sanitizedName = file.originalname.toLowerCase().replace(/[^a-z0-9.]+/g, '-');
+            const filename = `${timestamp}-${sanitizedName}`;
+            const finalPath = `${targetPath}${filename}`;
             
-            // Check if source file exists before moving
-            if (existsSync(file.path)) {
-              await fs.rename(file.path, finalPath);
-              console.log('File moved successfully');
-            } else {
-              console.log('Source file does not exist:', file.path);
-              // File might already be in the wrong location, let's check
-              const wrongPath = `photos/properties/${file.filename}`;
-              if (existsSync(wrongPath)) {
-                console.log('Found file in wrong location, moving from:', wrongPath);
-                await fs.rename(wrongPath, finalPath);
-              }
-            }
+            // Write file from memory buffer to disk
+            await fs.writeFile(finalPath, file.buffer);
             
             uploadedFiles.push({
-              filename: file.filename,
+              filename: filename,
               originalName: file.originalname,
               path: finalPath,
               size: file.size,
