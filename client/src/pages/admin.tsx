@@ -99,7 +99,7 @@ export default function Admin() {
   const propertyFormSchema = insertPropertySchema.extend({
     description: z.string().optional(),
     neighborhood: z.string().optional(),
-    images: z.array(z.string()).optional(),
+    images: z.array(z.string()).default([]),
     latitude: z.string().optional(),
     longitude: z.string().optional(),
   });
@@ -126,6 +126,7 @@ export default function Admin() {
   // Unit form
   const unitFormSchema = insertUnitSchema.extend({
     availableDate: z.string().optional(),
+    images: z.array(z.string()).default([]),
   });
 
   const unitForm = useForm({
@@ -355,7 +356,7 @@ export default function Admin() {
         ...property,
         description: property.description || "",
         neighborhood: property.neighborhood || "",
-        images: property.images || [] as string[],
+        images: (property.images as string[]) || [],
         latitude: property.latitude || "",
         longitude: property.longitude || "",
       });
@@ -374,7 +375,7 @@ export default function Admin() {
         propertyId: unit.propertyId,
         availableDate: unit.availableDate ? new Date(unit.availableDate).toISOString().split('T')[0] : "",
         rent: unit.rent ? unit.rent / 100 : 0,
-        images: unit.images || [] as string[],
+        images: (unit.images as string[]) || [],
       });
     } else {
       setEditingUnit(null);
