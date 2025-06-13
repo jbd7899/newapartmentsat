@@ -65,7 +65,7 @@ export class DatabaseStorage implements IStorage {
     if (filters?.city) {
       // Handle case-insensitive city filtering
       const cityName = filters.city.charAt(0).toUpperCase() + filters.city.slice(1).toLowerCase();
-      query = query.where(eq(properties.city, cityName));
+      query = query.where(eq(properties.city, cityName)) as typeof query;
     }
     
     const allProperties = await query;
@@ -116,14 +116,14 @@ export class DatabaseStorage implements IStorage {
 
   async deleteProperty(id: number): Promise<boolean> {
     const result = await db.delete(properties).where(eq(properties.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   async getUnits(propertyId?: number): Promise<Unit[]> {
     let query = db.select().from(units);
     
     if (propertyId) {
-      query = query.where(eq(units.propertyId, propertyId));
+      query = query.where(eq(units.propertyId, propertyId)) as typeof query;
     }
     
     return await query;
@@ -153,7 +153,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteUnit(id: number): Promise<boolean> {
     const result = await db.delete(units).where(eq(units.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   async createLeadSubmission(submission: InsertLeadSubmission): Promise<LeadSubmission> {
