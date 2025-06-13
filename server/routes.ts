@@ -11,29 +11,33 @@ import { existsSync } from "fs";
 
 // Configure multer for photo uploads
 const storage_config = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const { propertyId, unitId, type } = req.body;
-    let uploadPath = 'photos/properties/';
-    
-    if (propertyId) {
-      // Create property-specific folder structure
-      const property = req.body.propertyName?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || `property-${propertyId}`;
-      uploadPath += `${property}/`;
+  destination: async (req, file, cb) => {
+    try {
+      const { propertyId, propertyName, unitId, unitNumber, type } = req.body;
+      let uploadPath = 'photos/properties/';
       
-      if (unitId) {
-        const unitNumber = req.body.unitNumber?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || `unit-${unitId}`;
-        uploadPath += `unit-${unitNumber}/`;
-      } else if (type) {
-        uploadPath += `property-${type}/`;
+      if (propertyId && propertyName) {
+        // Create property-specific folder structure matching our system
+        const cleanPropertyName = propertyName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        uploadPath += `${cleanPropertyName}/`;
+        
+        if (unitId && unitNumber) {
+          // Unit-specific photos
+          const cleanUnitNumber = unitNumber.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+          uploadPath += `unit-${cleanUnitNumber}/`;
+        } else if (type) {
+          // Property-level photos (exterior, interior, amenities)
+          uploadPath += `property-${type}/`;
+        }
       }
+      
+      // Ensure directory exists
+      await fs.mkdir(uploadPath, { recursive: true });
+      cb(null, uploadPath);
+    } catch (error) {
+      console.error('Error creating upload directory:', error);
+      cb(new Error('Failed to create upload directory'), 'photos/properties/');
     }
-    
-    // Ensure directory exists
-    if (!existsSync(uploadPath)) {
-      fs.mkdir(uploadPath, { recursive: true }).catch(console.error);
-    }
-    
-    cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
     const timestamp = Date.now();

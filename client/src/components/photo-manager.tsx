@@ -80,7 +80,7 @@ export default function PhotoManager({ property, units, onClose }: PhotoManagerP
     });
 
     formData.append('propertyId', property.id.toString());
-    formData.append('propertyName', `${property.city}-${property.name}`);
+    formData.append('propertyName', `${property.city.toLowerCase()}-${property.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
     formData.append('type', type);
     
     if (unitId) {
