@@ -8,9 +8,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Switch } from "@/components/ui/switch";
-import { MapPin, Bed, Bath, Building, AlertCircle, RefreshCw } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MapPin, Bed, Bath, Building, AlertCircle, RefreshCw, Camera, Image as ImageIcon } from "lucide-react";
 import { useState } from "react";
+import { apiRequest } from "@/lib/queryClient";
 import type { Property, Unit } from "@shared/schema";
+
+interface PhotoData {
+  exterior: string[];
+  interior: string[];
+  amenities: string[];
+  units: Record<string, string[]>;
+}
 
 export default function PropertyDetail() {
   const { id } = useParams();
@@ -39,6 +48,13 @@ export default function PropertyDetail() {
     },
     retry: 2,
     retryDelay: 1000,
+  });
+
+  const { data: photos } = useQuery<PhotoData>({
+    queryKey: ['/api/photos/property', id],
+    queryFn: () => apiRequest(`/api/photos/property/${id}`),
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
   });
 
   // Handle error states
@@ -147,7 +163,107 @@ export default function PropertyDetail() {
 
         {/* Photo Gallery */}
         <div className="mb-8">
-          <PhotoGallery images={property.images || []} />
+          {photos && (photos.exterior.length > 0 || photos.interior.length > 0 || photos.amenities.length > 0) ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Camera className="w-5 h-5" />
+                  Property Photos
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="exterior" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="exterior" className="flex items-center gap-2">
+                      <ImageIcon className="w-4 h-4" />
+                      Exterior ({photos.exterior.length})
+                    </TabsTrigger>
+                    <TabsTrigger value="interior" className="flex items-center gap-2">
+                      <ImageIcon className="w-4 h-4" />
+                      Interior ({photos.interior.length})
+                    </TabsTrigger>
+                    <TabsTrigger value="amenities" className="flex items-center gap-2">
+                      <ImageIcon className="w-4 h-4" />
+                      Amenities ({photos.amenities.length})
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="exterior" className="mt-6">
+                    {photos.exterior.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {photos.exterior.map((image, index) => (
+                          <img
+                            key={index}
+                            src={image}
+                            alt={`${property.name} exterior ${index + 1}`}
+                            className="w-full h-64 object-cover rounded-lg border hover:shadow-lg transition-shadow"
+                            loading="lazy"
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-12 text-gray-500">
+                        <ImageIcon className="w-12 h-12 mx-auto mb-4" />
+                        <p>No exterior photos available</p>
+                      </div>
+                    )}
+                  </TabsContent>
+                  
+                  <TabsContent value="interior" className="mt-6">
+                    {photos.interior.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {photos.interior.map((image, index) => (
+                          <img
+                            key={index}
+                            src={image}
+                            alt={`${property.name} interior ${index + 1}`}
+                            className="w-full h-64 object-cover rounded-lg border hover:shadow-lg transition-shadow"
+                            loading="lazy"
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-12 text-gray-500">
+                        <ImageIcon className="w-12 h-12 mx-auto mb-4" />
+                        <p>No interior photos available</p>
+                      </div>
+                    )}
+                  </TabsContent>
+                  
+                  <TabsContent value="amenities" className="mt-6">
+                    {photos.amenities.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {photos.amenities.map((image, index) => (
+                          <img
+                            key={index}
+                            src={image}
+                            alt={`${property.name} amenities ${index + 1}`}
+                            className="w-full h-64 object-cover rounded-lg border hover:shadow-lg transition-shadow"
+                            loading="lazy"
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-12 text-gray-500">
+                        <ImageIcon className="w-12 h-12 mx-auto mb-4" />
+                        <p>No amenity photos available</p>
+                      </div>
+                    )}
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardContent className="py-12">
+                <div className="text-center text-gray-500">
+                  <Camera className="w-16 h-16 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">No Photos Available</h3>
+                  <p>Photos for this property haven't been uploaded yet.</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -186,37 +302,65 @@ export default function PropertyDetail() {
                 <CardTitle>Available Units</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {units.map((unit) => (
-                    <div
-                      key={unit.id}
-                      className="flex items-center justify-between p-4 border rounded-lg"
-                    >
-                      <div className="flex items-center space-x-4">
-                        <span className="font-medium">Unit {unit.unitNumber}</span>
-                        <Badge variant={unit.isAvailable ? "default" : "secondary"}>
-                          {unit.isAvailable ? "Available" : "Leased"}
-                        </Badge>
-                        {unit.rent && (
-                          <span className="text-sm text-muted-foreground">
-                            ${(unit.rent / 100).toLocaleString()}/month
-                          </span>
+                <div className="space-y-6">
+                  {units.map((unit) => {
+                    const unitPhotos = photos?.units[unit.id] || [];
+                    return (
+                      <div key={unit.id} className="border rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center space-x-4">
+                            <span className="font-medium">Unit {unit.unitNumber}</span>
+                            <Badge variant={unit.isAvailable ? "default" : "secondary"}>
+                              {unit.isAvailable ? "Available" : "Leased"}
+                            </Badge>
+                            {unit.rent && (
+                              <span className="text-sm text-muted-foreground">
+                                ${(unit.rent / 100).toLocaleString()}/month
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center space-x-4">
+                            {unit.availableDate && (
+                              <span className="text-sm text-muted-foreground">
+                                Available: {new Date(unit.availableDate).toLocaleDateString()}
+                              </span>
+                            )}
+                            <Switch
+                              checked={unit.isAvailable}
+                              disabled
+                              className="data-[state=checked]:bg-primary"
+                            />
+                          </div>
+                        </div>
+                        
+                        {/* Unit Photos */}
+                        {unitPhotos.length > 0 && (
+                          <div className="mt-4">
+                            <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+                              <Camera className="w-4 h-4" />
+                              Unit Photos ({unitPhotos.length})
+                            </h4>
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                              {unitPhotos.slice(0, 6).map((image, index) => (
+                                <img
+                                  key={index}
+                                  src={image}
+                                  alt={`Unit ${unit.unitNumber} photo ${index + 1}`}
+                                  className="w-full h-32 object-cover rounded-lg border hover:shadow-md transition-shadow"
+                                  loading="lazy"
+                                />
+                              ))}
+                            </div>
+                            {unitPhotos.length > 6 && (
+                              <p className="text-sm text-gray-500 mt-2">
+                                +{unitPhotos.length - 6} more photos
+                              </p>
+                            )}
+                          </div>
                         )}
                       </div>
-                      <div className="flex items-center space-x-4">
-                        {unit.availableDate && (
-                          <span className="text-sm text-muted-foreground">
-                            Available: {new Date(unit.availableDate).toLocaleDateString()}
-                          </span>
-                        )}
-                        <Switch
-                          checked={unit.isAvailable}
-                          disabled
-                          className="data-[state=checked]:bg-primary"
-                        />
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>

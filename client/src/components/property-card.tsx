@@ -3,10 +3,18 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
 import type { Property, Unit } from "@shared/schema";
 
 interface PropertyCardProps {
   property: Property;
+}
+
+interface PhotoData {
+  exterior: string[];
+  interior: string[];
+  amenities: string[];
+  units: Record<string, string[]>;
 }
 
 export default function PropertyCard({ property }: PropertyCardProps) {
@@ -21,21 +29,52 @@ export default function PropertyCard({ property }: PropertyCardProps) {
     },
   });
 
+  const { data: photos } = useQuery<PhotoData>({
+    queryKey: ['/api/photos/property', property.id],
+    queryFn: () => apiRequest(`/api/photos/property/${property.id}`),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
   const availableUnits = units.filter(unit => unit.isAvailable);
   const hasAvailableUnits = availableUnits.length > 0;
   const availabilityText = property.totalUnits > 1 
     ? `${availableUnits.length}/${property.totalUnits} available`
     : hasAvailableUnits ? "Available" : "Not Available";
 
+  // Get the first available photo, prioritizing exterior photos
+  const getPropertyImage = () => {
+    if (photos?.exterior && photos.exterior.length > 0) {
+      return photos.exterior[0];
+    }
+    if (photos?.interior && photos.interior.length > 0) {
+      return photos.interior[0];
+    }
+    if (photos?.amenities && photos.amenities.length > 0) {
+      return photos.amenities[0];
+    }
+    return null;
+  };
+
+  const propertyImage = getPropertyImage();
+
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow group">
       <div className="relative overflow-hidden">
-        <img
-          src={(property.images && property.images[0]) || "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"}
-          alt={`${property.name} exterior`}
-          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-          loading="lazy"
-        />
+        {propertyImage ? (
+          <img
+            src={propertyImage}
+            alt={`${property.name} exterior`}
+            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+            loading="lazy"
+          />
+        ) : (
+          <div className="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+            <div className="text-center text-gray-500">
+              <MapPin className="w-8 h-8 mx-auto mb-2" />
+              <p className="text-sm">No photos available</p>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="p-6">
