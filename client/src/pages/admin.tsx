@@ -179,12 +179,12 @@ export default function Admin() {
   };
 
   return (
-    <div className="min-h-screen bg-warm">
+    <div className="min-h-screen bg-background">
       <Navigation />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-neutral mb-2">Admin Dashboard</h1>
+          <h1 className="text-4xl font-bold text-foreground mb-2">Admin Dashboard</h1>
           <p className="text-muted-foreground">Manage properties, units, and view lead submissions</p>
         </div>
 
@@ -197,7 +197,7 @@ export default function Admin() {
 
           <TabsContent value="properties" className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold text-neutral">Properties</h2>
+              <h2 className="text-2xl font-semibold text-foreground">Properties</h2>
               <Dialog open={isPropertyDialogOpen} onOpenChange={setIsPropertyDialogOpen}>
                 <DialogTrigger asChild>
                   <Button onClick={() => openPropertyDialog()} className="bg-primary hover:bg-primary/90">
@@ -428,7 +428,7 @@ export default function Admin() {
 
           <TabsContent value="units" className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold text-neutral">Units</h2>
+              <h2 className="text-2xl font-semibold text-foreground">Units</h2>
               <Dialog open={isUnitDialogOpen} onOpenChange={setIsUnitDialogOpen}>
                 <DialogTrigger asChild>
                   <Button onClick={() => openUnitDialog()} className="bg-primary hover:bg-primary/90">
@@ -576,7 +576,7 @@ export default function Admin() {
           </TabsContent>
 
           <TabsContent value="leads" className="space-y-6">
-            <h2 className="text-2xl font-semibold text-neutral">Lead Submissions</h2>
+            <h2 className="text-2xl font-semibold text-foreground">Lead Submissions</h2>
             
             <div className="space-y-4">
               {leadsLoading ? (

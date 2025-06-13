@@ -70,7 +70,7 @@ export default function MapSection() {
     // Load Google Maps API
     if (!window.google) {
       const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY || process.env.GOOGLE_MAPS_API_KEY || ''}&callback=initMap`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''}&callback=initMap`;
       script.async = true;
       script.defer = true;
       
@@ -97,7 +97,7 @@ export default function MapSection() {
     <section className="py-12 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-neutral mb-4">Explore Our Properties</h2>
+          <h2 className="text-3xl font-bold text-foreground mb-4">Explore Our Properties</h2>
           <p className="text-gray-600">Interactive map showing available rental units across Atlanta and Dallas</p>
         </div>
 

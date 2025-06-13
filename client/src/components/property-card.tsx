@@ -24,7 +24,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
 
       <div className="p-6">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-xl font-semibold text-neutral">{property.name}</h3>
+          <h3 className="text-xl font-semibold text-foreground">{property.name}</h3>
           <Badge variant={hasAvailableUnits ? "default" : "secondary"}>
             {hasAvailableUnits ? "Available" : "Leased"}
           </Badge>

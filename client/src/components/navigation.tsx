@@ -29,7 +29,7 @@ export default function Navigation() {
             <div className="ml-10 flex items-baseline space-x-8">
               {navItems.map((item) => (
                 <Link key={item.href} href={item.href}>
-                  <span className="text-neutral hover:text-primary px-3 py-2 text-sm font-medium transition-colors cursor-pointer">
+                  <span className="text-foreground hover:text-primary px-3 py-2 text-sm font-medium transition-colors cursor-pointer">
                     {item.label}
                   </span>
                 </Link>
@@ -46,7 +46,7 @@ export default function Navigation() {
           <div className="md:hidden">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-neutral hover:text-primary">
+                <Button variant="ghost" size="icon" className="text-foreground hover:text-primary">
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
@@ -55,7 +55,7 @@ export default function Navigation() {
                   {navItems.map((item) => (
                     <Link key={item.href} href={item.href}>
                       <span 
-                        className="text-neutral hover:text-primary text-lg font-medium cursor-pointer"
+                        className="text-foreground hover:text-primary text-lg font-medium cursor-pointer"
                         onClick={() => setIsOpen(false)}
                       >
                         {item.label}

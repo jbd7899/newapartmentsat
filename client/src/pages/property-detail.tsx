@@ -33,12 +33,12 @@ export default function PropertyDetail() {
 
   if (propertyLoading || unitsLoading) {
     return (
-      <div className="min-h-screen bg-warm">
+      <div className="min-h-screen bg-background">
         <Navigation />
         <div className="flex items-center justify-center py-20">
           <div className="text-center">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-4 text-neutral">Loading property details...</p>
+            <p className="mt-4 text-foreground">Loading property details...</p>
           </div>
         </div>
         <Footer />
@@ -48,13 +48,13 @@ export default function PropertyDetail() {
 
   if (!property) {
     return (
-      <div className="min-h-screen bg-warm">
+      <div className="min-h-screen bg-background">
         <Navigation />
         <div className="max-w-4xl mx-auto px-4 py-20">
           <Card>
             <CardContent className="pt-6">
               <div className="text-center">
-                <h1 className="text-2xl font-bold text-neutral mb-4">Property Not Found</h1>
+                <h1 className="text-2xl font-bold text-foreground mb-4">Property Not Found</h1>
                 <p className="text-muted-foreground">The property you're looking for doesn't exist.</p>
               </div>
             </CardContent>
@@ -66,7 +66,7 @@ export default function PropertyDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-warm">
+    <div className="min-h-screen bg-background">
       <Navigation />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -74,7 +74,7 @@ export default function PropertyDetail() {
         <div className="mb-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
             <div>
-              <h1 className="text-4xl font-bold text-neutral mb-2">{property.name}</h1>
+              <h1 className="text-4xl font-bold text-foreground mb-2">{property.name}</h1>
               <div className="flex items-center text-muted-foreground mb-4">
                 <MapPin className="w-4 h-4 mr-2" />
                 <span>{property.address}, {property.city}, {property.state} {property.zipCode}</span>
@@ -99,7 +99,7 @@ export default function PropertyDetail() {
 
         {/* Photo Gallery */}
         <div className="mb-8">
-          <PhotoGallery images={property.images} />
+          <PhotoGallery images={property.images || []} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -111,7 +111,7 @@ export default function PropertyDetail() {
                 <CardTitle>About This Property</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-neutral leading-relaxed">
+                <p className="text-foreground leading-relaxed">
                   {property.description || "No description available."}
                 </p>
               </CardContent>
@@ -124,7 +124,7 @@ export default function PropertyDetail() {
                   <CardTitle>Neighborhood: {property.neighborhood}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-neutral leading-relaxed">
+                  <p className="text-foreground leading-relaxed">
                     Discover the vibrant {property.neighborhood} neighborhood with its unique character, 
                     local attractions, and convenient amenities perfect for urban living.
                   </p>

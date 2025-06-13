@@ -18,7 +18,7 @@ export default function HeroSection({
     <section className="relative warm-gradient py-16 lg:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-6xl font-bold text-neutral mb-6 leading-tight">
+          <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
             Unique and architecturally charming<br />
             <span className="text-primary">urban living</span>
           </h1>
@@ -30,7 +30,7 @@ export default function HeroSection({
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
             <div className="flex items-center space-x-4 bg-white p-2 rounded-xl shadow-sm">
               <Select value={cityFilter} onValueChange={setCityFilter}>
-                <SelectTrigger className="border-0 bg-transparent text-neutral font-medium focus:ring-0 focus:outline-none min-w-[120px]">
+                <SelectTrigger className="border-0 bg-transparent text-foreground font-medium focus:ring-0 focus:outline-none min-w-[120px]">
                   <SelectValue placeholder="Select City" />
                 </SelectTrigger>
                 <SelectContent>
@@ -46,7 +46,7 @@ export default function HeroSection({
                 variant={availabilityFilter ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setAvailabilityFilter(true)}
-                className={availabilityFilter ? "bg-primary text-white" : "text-neutral hover:bg-gray-100"}
+                className={availabilityFilter ? "bg-primary text-white" : "text-foreground hover:bg-gray-100"}
               >
                 Available
               </Button>
@@ -54,7 +54,7 @@ export default function HeroSection({
                 variant={!availabilityFilter ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setAvailabilityFilter(false)}
-                className={!availabilityFilter ? "bg-primary text-white" : "text-neutral hover:bg-gray-100"}
+                className={!availabilityFilter ? "bg-primary text-white" : "text-foreground hover:bg-gray-100"}
               >
                 Leased
               </Button>

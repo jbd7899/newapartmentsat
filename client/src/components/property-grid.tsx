@@ -27,10 +27,10 @@ export default function PropertyGrid({ cityFilter, availabilityFilter }: Propert
   });
 
   return (
-    <section className="py-16 bg-warm">
+    <section className="py-16 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-neutral mb-4">Featured Properties</h2>
+          <h2 className="text-3xl font-bold text-foreground mb-4">Featured Properties</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Discover unique rental opportunities in vibrant urban neighborhoods
           </p>
@@ -57,7 +57,7 @@ export default function PropertyGrid({ cityFilter, availabilityFilter }: Propert
         ) : properties.length === 0 ? (
           <div className="text-center py-16">
             <div className="max-w-md mx-auto">
-              <h3 className="text-xl font-semibold text-neutral mb-4">No Properties Found</h3>
+              <h3 className="text-xl font-semibold text-foreground mb-4">No Properties Found</h3>
               <p className="text-gray-600 mb-6">
                 There are no properties matching your current filters. Try adjusting your search criteria.
               </p>

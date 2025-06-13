@@ -42,7 +42,7 @@ export default function NeighborhoodSection() {
     <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-neutral mb-4">Vibrant Neighborhoods</h2>
+          <h2 className="text-3xl font-bold text-foreground mb-4">Vibrant Neighborhoods</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Our properties are located in the heart of the most dynamic and culturally rich areas
           </p>
@@ -59,7 +59,7 @@ export default function NeighborhoodSection() {
                   loading="lazy"
                 />
               </div>
-              <h3 className="text-xl font-semibold text-neutral mb-2">{neighborhood.name}</h3>
+              <h3 className="text-xl font-semibold text-foreground mb-2">{neighborhood.name}</h3>
               <p className="text-gray-600">{neighborhood.description}</p>
             </div>
           ))}
