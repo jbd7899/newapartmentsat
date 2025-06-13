@@ -224,12 +224,10 @@ export default function MapSection({ cityFilter, setCityFilter, availabilityFilt
   return (
     <section className="py-12 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900">View our family owned and managed rental properties.</h2>
-        </div>
+        
 
         {/* City Selector & Availability Filter */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-[10px] mb-[10px]">
           <div className="flex items-center space-x-4 bg-white p-2 rounded-xl shadow-sm">
             <Select value={cityFilter} onValueChange={setCityFilter}>
               <SelectTrigger className="border-0 bg-transparent text-foreground font-medium focus:ring-0 focus:outline-none min-w-[120px]">
