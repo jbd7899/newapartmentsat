@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import Navigation from "@/components/navigation";
+import PhotoManager from "@/components/photo-manager";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,6 +53,7 @@ export default function Admin() {
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
   const [editingUnit, setEditingUnit] = useState<Unit | null>(null);
   const [expandedProperties, setExpandedProperties] = useState<Set<number>>(new Set());
+  const [photoManagerProperty, setPhotoManagerProperty] = useState<Property | null>(null);
 
   // Queries with enhanced error handling
   const properties = useQuery({
