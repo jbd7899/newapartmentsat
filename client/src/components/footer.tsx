@@ -7,9 +7,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
             <div className="text-2xl font-bold mb-4">UrbanLiving</div>
-            <p className="text-gray-300 mb-6 max-w-md">
-              Locally owned and managed rental properties designed for young professionals who value character, community, and convenience.
-            </p>
+            <p className="text-gray-300 mb-6 max-w-md">Locally owned and managed rental properties.</p>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-300 hover:text-white transition-colors" aria-label="Facebook">
                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
