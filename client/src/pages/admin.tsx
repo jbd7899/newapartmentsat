@@ -388,6 +388,9 @@ export default function Admin() {
         ...property,
         description: property.description || "",
         neighborhood: property.neighborhood || "",
+        amenities: property.amenities || "",
+        petPolicy: property.petPolicy || "",
+        floorPlans: property.floorPlans || "",
         images: (property.images as any) || [],
         latitude: property.latitude || "",
         longitude: property.longitude || "",
@@ -1226,11 +1229,11 @@ export default function Admin() {
                               variant="outline"
                               className={submission.contacted ? "text-gray-500 border-gray-200" : "text-blue-600 border-blue-200 hover:bg-blue-50"}
                               onClick={async () => {
-                                await apiRequest(`/api/lead-submissions/${submission.id}`, {
-                                  method: 'PUT',
-                                  body: JSON.stringify({ contacted: !submission.contacted }),
-                                  headers: { 'Content-Type': 'application/json' }
-                                });
+                                await apiRequest(
+                                  `/api/lead-submissions/${submission.id}`,
+                                  'PUT',
+                                  { contacted: !submission.contacted },
+                                );
                                 leadSubmissions.refetch();
                               }}
                             >
