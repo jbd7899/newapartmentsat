@@ -9,7 +9,7 @@ export default function HeroSection() {
             Unique and architecturally charming<br />
             <span className="text-primary">urban living</span>
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto mt-[0px] mb-[0px]">
             Family owned and managed rental properties in vibrant urban neighborhoods.
           </p>
 
