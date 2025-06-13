@@ -27,7 +27,7 @@ Add photos showing:
 - JPEG (.jpg, .jpeg)
 - PNG (.png)
 - WebP (.webp)
-- Maximum recommended size: 2MB per image
+- Maximum recommended size: 20MB per image
 
 ### 5. Naming Convention
 Use descriptive names:
