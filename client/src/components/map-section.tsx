@@ -231,11 +231,31 @@ export default function MapSection({ cityFilter }: MapSectionProps) {
           )}
 
           {mapError && (
-            <div className="flex items-center justify-center h-full text-center p-8">
-              <div>
-                <MapPin className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Map Unavailable</h3>
-                <p className="text-gray-600">Use the property grid below to browse available units</p>
+            <div className="p-6">
+              <div className="text-center mb-6">
+                <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Property Locations</h3>
+                <p className="text-gray-600">Current {cityFilter === "all" ? "All Cities" : cityFilter === "atlanta" ? "Atlanta" : "Dallas"} Properties</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {(cityFilter === "all" ? properties : properties.filter(p => p.city.toLowerCase() === cityFilter)).map((property) => (
+                  <div key={property.id} className="bg-white rounded-lg border p-4 hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between mb-2">
+                      <h4 className="font-semibold text-gray-900 text-sm">{property.name}</h4>
+                      <MapPin className="w-4 h-4 text-primary flex-shrink-0" />
+                    </div>
+                    <p className="text-xs text-gray-600 mb-2">{property.address}</p>
+                    <p className="text-xs text-gray-500 mb-3">{property.neighborhood}</p>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs bg-gray-100 px-2 py-1 rounded">
+                        {property.bedrooms} bed • {property.bathrooms} bath
+                      </span>
+                      <Button size="sm" variant="outline" className="text-xs h-7">
+                        View Details
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
