@@ -721,6 +721,18 @@ export default function Admin() {
                                     variant="ghost"
                                     onClick={(e) => {
                                       e.stopPropagation();
+                                      setPhotoManagerProperty(property);
+                                    }}
+                                    className="text-gray-600 hover:text-green-600"
+                                    title="Manage Photos"
+                                  >
+                                    <Camera className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
                                       openPropertyDialog(property);
                                     }}
                                     className="text-gray-600 hover:text-blue-600"
@@ -1115,6 +1127,15 @@ export default function Admin() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Photo Manager Modal */}
+      {photoManagerProperty && (
+        <PhotoManager
+          property={photoManagerProperty}
+          units={units.data?.filter((unit: Unit) => unit.propertyId === photoManagerProperty.id) || []}
+          onClose={() => setPhotoManagerProperty(null)}
+        />
+      )}
     </div>
   );
 }
