@@ -25,6 +25,18 @@ export default function MapSection({ cityFilter }: MapSectionProps) {
     queryKey: ["/api/properties"],
   });
 
+  // City coordinates
+  const getCityCenter = (city: string) => {
+    switch (city) {
+      case "atlanta":
+        return { lat: 33.7490, lng: -84.3880 };
+      case "dallas":
+        return { lat: 32.7767, lng: -96.7970 };
+      default:
+        return { lat: 33.7490, lng: -84.3880 }; // Default to Atlanta
+    }
+  };
+
   useEffect(() => {
     const initializeMap = () => {
       try {
@@ -32,9 +44,10 @@ export default function MapSection({ cityFilter }: MapSectionProps) {
           throw new Error("Google Maps not available");
         }
 
+        const center = getCityCenter(cityFilter);
         const map = new window.google.maps.Map(mapRef.current, {
-          center: { lat: 33.7490, lng: -84.3880 }, // Atlanta center
-          zoom: 10,
+          center,
+          zoom: 11,
           styles: [
             {
               featureType: "all",
@@ -91,7 +104,16 @@ export default function MapSection({ cityFilter }: MapSectionProps) {
         delete window.initMap;
       }
     };
-  }, []);
+  }, [cityFilter]);
+
+  // Update map center when city filter changes
+  useEffect(() => {
+    if (mapInstance && cityFilter) {
+      const center = getCityCenter(cityFilter);
+      mapInstance.setCenter(center);
+      mapInstance.setZoom(11);
+    }
+  }, [cityFilter, mapInstance]);
 
   // Add markers when properties data is available and map is loaded
   useEffect(() => {
@@ -106,7 +128,12 @@ export default function MapSection({ cityFilter }: MapSectionProps) {
       "Skyline Studios": { lat: 32.7767, lng: -96.7970 },
     };
 
-    properties.forEach((property) => {
+    // Filter properties based on city selection
+    const filteredProperties = cityFilter === "all" 
+      ? properties 
+      : properties.filter(property => property.city.toLowerCase() === cityFilter);
+
+    filteredProperties.forEach((property) => {
       let lat, lng;
       
       // Use stored coordinates if available, otherwise use defaults
@@ -182,7 +209,7 @@ export default function MapSection({ cityFilter }: MapSectionProps) {
     return () => {
       markers.forEach(marker => marker.setMap(null));
     };
-  }, [mapInstance, properties]);
+  }, [mapInstance, properties, cityFilter]);
 
   return (
     <section className="py-12 bg-white">
