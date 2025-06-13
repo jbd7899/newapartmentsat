@@ -32,7 +32,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
   const { data: photos } = useQuery<PhotoData>({
     queryKey: ['/api/photos/property', property.id],
     queryFn: () => apiRequest(`/api/photos/property/${property.id}`),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 30 * 1000, // 30 seconds
   });
 
   const availableUnits = units.filter(unit => unit.isAvailable);

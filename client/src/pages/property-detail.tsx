@@ -54,7 +54,7 @@ export default function PropertyDetail() {
     queryKey: ['/api/photos/property', id],
     queryFn: () => apiRequest(`/api/photos/property/${id}`),
     enabled: !!id,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 1000,
   });
 
   // Handle error states

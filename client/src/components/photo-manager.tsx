@@ -44,6 +44,8 @@ export default function PhotoManager({ property, units, onClose }: PhotoManagerP
     },
     onSuccess: () => {
       refetch();
+      // Invalidate property photos cache
+      queryClient.invalidateQueries({ queryKey: ['/api/photos/property', property.id] });
       toast({ title: "Photos uploaded successfully" });
     },
     onError: () => {
@@ -57,6 +59,8 @@ export default function PhotoManager({ property, units, onClose }: PhotoManagerP
     },
     onSuccess: () => {
       refetch();
+      // Invalidate property photos cache
+      queryClient.invalidateQueries({ queryKey: ['/api/photos/property', property.id] });
       toast({ title: "Photo deleted successfully" });
     },
     onError: () => {
