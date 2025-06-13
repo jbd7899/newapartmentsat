@@ -59,17 +59,12 @@ export default function Admin() {
     queryKey: ["/api/units"],
   });
 
-  const { data: leadSubmissions = [], isLoading: leadsLoading } = useQuery<LeadSubmission[]>({
+  const { data: leads = [], isLoading: leadsLoading } = useQuery<LeadSubmission[]>({
     queryKey: ["/api/lead-submissions"],
   });
 
-  // Property form
-  const propertyFormSchema = insertPropertySchema.extend({
-    images: z.array(z.string()).optional(),
-  });
-
   const propertyForm = useForm({
-    resolver: zodResolver(propertyFormSchema),
+    resolver: zodResolver(insertPropertySchema),
     defaultValues: {
       name: "",
       address: "",
@@ -87,140 +82,104 @@ export default function Admin() {
     },
   });
 
-  // Unit form
-  const unitFormSchema = insertUnitSchema.extend({
-    availableDate: z.string().optional(),
-  });
-
   const unitForm = useForm({
-    resolver: zodResolver(unitFormSchema),
+    resolver: zodResolver(insertUnitSchema),
     defaultValues: {
       propertyId: 0,
       unitNumber: "",
       isAvailable: false,
-      availableDate: "",
+      availableDate: null,
       rent: 0,
       images: [],
     },
   });
 
-  // Mutations
   const createPropertyMutation = useMutation({
-    mutationFn: async (data: any) => {
-      const response = await apiRequest("/api/properties", "POST", data);
-      return response;
+    mutationFn: async (data: z.infer<typeof insertPropertySchema>) => {
+      const response = await apiRequest("POST", "/api/properties", data);
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/properties"] });
       setIsPropertyDialogOpen(false);
       propertyForm.reset();
-      toast({ title: "Property created successfully" });
+      toast({ title: "Success", description: "Property created successfully" });
     },
-    onError: (error) => {
-      toast({ title: "Error creating property", variant: "destructive" });
+    onError: () => {
+      toast({ title: "Error", description: "Failed to create property", variant: "destructive" });
     },
   });
 
   const updatePropertyMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: any }) => {
-      const response = await apiRequest(`/api/properties/${id}`, "PATCH", data);
-      return response;
+    mutationFn: async ({ id, data }: { id: number; data: Partial<z.infer<typeof insertPropertySchema>> }) => {
+      const response = await apiRequest("PUT", `/api/properties/${id}`, data);
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/properties"] });
       setIsPropertyDialogOpen(false);
-      propertyForm.reset();
       setEditingProperty(null);
-      toast({ title: "Property updated successfully" });
+      propertyForm.reset();
+      toast({ title: "Success", description: "Property updated successfully" });
     },
-    onError: (error) => {
-      toast({ title: "Error updating property", variant: "destructive" });
+    onError: () => {
+      toast({ title: "Error", description: "Failed to update property", variant: "destructive" });
     },
   });
 
   const createUnitMutation = useMutation({
-    mutationFn: async (data: any) => {
-      const response = await apiRequest("/api/units", "POST", data);
-      return response;
+    mutationFn: async (data: z.infer<typeof insertUnitSchema>) => {
+      const response = await apiRequest("POST", "/api/units", data);
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/units"] });
       setIsUnitDialogOpen(false);
       unitForm.reset();
-      toast({ title: "Unit created successfully" });
+      toast({ title: "Success", description: "Unit created successfully" });
     },
-    onError: (error) => {
-      toast({ title: "Error creating unit", variant: "destructive" });
+    onError: () => {
+      toast({ title: "Error", description: "Failed to create unit", variant: "destructive" });
     },
   });
 
   const updateUnitMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: any }) => {
-      const response = await apiRequest(`/api/units/${id}`, "PATCH", data);
-      return response;
+    mutationFn: async ({ id, data }: { id: number; data: Partial<z.infer<typeof insertUnitSchema>> }) => {
+      const response = await apiRequest("PUT", `/api/units/${id}`, data);
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/units"] });
       setIsUnitDialogOpen(false);
-      unitForm.reset();
       setEditingUnit(null);
-      toast({ title: "Unit updated successfully" });
+      unitForm.reset();
+      toast({ title: "Success", description: "Unit updated successfully" });
     },
-    onError: (error) => {
-      toast({ title: "Error updating unit", variant: "destructive" });
+    onError: () => {
+      toast({ title: "Error", description: "Failed to update unit", variant: "destructive" });
     },
   });
 
-  // Form handlers
-  const onPropertySubmit = (data: any) => {
+  const onPropertySubmit = (data: z.infer<typeof insertPropertySchema>) => {
     if (editingProperty) {
-      updatePropertyMutation.mutate({
-        id: editingProperty.id,
-        data: {
-          ...data,
-          description: data.description || null,
-          neighborhood: data.neighborhood || null,
-          images: data.images || null,
-          latitude: data.latitude || null,
-          longitude: data.longitude || null,
-        },
-      });
+      updatePropertyMutation.mutate({ id: editingProperty.id, data });
     } else {
-      createPropertyMutation.mutate({
-        ...data,
-        description: data.description || null,
-        neighborhood: data.neighborhood || null,
-        images: data.images || null,
-        latitude: data.latitude || null,
-        longitude: data.longitude || null,
-      });
+      createPropertyMutation.mutate(data);
     }
   };
 
-  const onUnitSubmit = (data: any) => {
-    const submitData = {
-      ...data,
-      availableDate: data.availableDate ? new Date(data.availableDate) : null,
-    };
-
+  const onUnitSubmit = (data: z.infer<typeof insertUnitSchema>) => {
     if (editingUnit) {
-      updateUnitMutation.mutate({ id: editingUnit.id, data: submitData });
+      updateUnitMutation.mutate({ id: editingUnit.id, data });
     } else {
-      createUnitMutation.mutate(submitData);
+      createUnitMutation.mutate(data);
     }
   };
 
   const openPropertyDialog = (property?: Property) => {
     if (property) {
       setEditingProperty(property);
-      propertyForm.reset({
-        ...property,
-        description: property.description || "",
-        neighborhood: property.neighborhood || "",
-        images: property.images || [],
-        latitude: property.latitude || "",
-        longitude: property.longitude || "",
-      });
+      propertyForm.reset(property);
     } else {
       setEditingProperty(null);
       propertyForm.reset();
@@ -274,7 +233,8 @@ export default function Admin() {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <div className="container mx-auto px-4 py-8">
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-2">Admin Dashboard</h1>
           <p className="text-muted-foreground">Manage properties, units, and view lead submissions</p>
@@ -310,7 +270,7 @@ export default function Admin() {
                     Add Property
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl">
+                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>
                       {editingProperty ? "Edit Property" : "Add New Property"}
@@ -318,7 +278,7 @@ export default function Admin() {
                   </DialogHeader>
                   <Form {...propertyForm}>
                     <form onSubmit={propertyForm.handleSubmit(onPropertySubmit)} className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField
                           control={propertyForm.control}
                           name="name"
@@ -334,38 +294,17 @@ export default function Admin() {
                         />
                         <FormField
                           control={propertyForm.control}
-                          name="totalUnits"
+                          name="address"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Total Units</FormLabel>
+                              <FormLabel>Address</FormLabel>
                               <FormControl>
-                                <Input
-                                  type="number"
-                                  {...field}
-                                  onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
-                                />
+                                <Input {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
-                      </div>
-
-                      <FormField
-                        control={propertyForm.control}
-                        name="address"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Address</FormLabel>
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <div className="grid grid-cols-3 gap-4">
                         <FormField
                           control={propertyForm.control}
                           name="city"
@@ -373,7 +312,15 @@ export default function Admin() {
                             <FormItem>
                               <FormLabel>City</FormLabel>
                               <FormControl>
-                                <Input {...field} />
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select city" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="Atlanta">Atlanta</SelectItem>
+                                    <SelectItem value="Dallas">Dallas</SelectItem>
+                                  </SelectContent>
+                                </Select>
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -386,7 +333,15 @@ export default function Admin() {
                             <FormItem>
                               <FormLabel>State</FormLabel>
                               <FormControl>
-                                <Input {...field} />
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select state" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="GA">GA</SelectItem>
+                                    <SelectItem value="TX">TX</SelectItem>
+                                  </SelectContent>
+                                </Select>
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -397,7 +352,7 @@ export default function Admin() {
                           name="zipCode"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Zip Code</FormLabel>
+                              <FormLabel>ZIP Code</FormLabel>
                               <FormControl>
                                 <Input {...field} />
                               </FormControl>
@@ -405,9 +360,6 @@ export default function Admin() {
                             </FormItem>
                           )}
                         />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
                         <FormField
                           control={propertyForm.control}
                           name="bedrooms"
@@ -418,7 +370,7 @@ export default function Admin() {
                                 <Input
                                   type="number"
                                   {...field}
-                                  onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                                  onChange={(e) => field.onChange(parseInt(e.target.value))}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -432,14 +384,30 @@ export default function Admin() {
                             <FormItem>
                               <FormLabel>Bathrooms</FormLabel>
                               <FormControl>
-                                <Input {...field} />
+                                <Input {...field} placeholder="e.g., 1.5, 2" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={propertyForm.control}
+                          name="totalUnits"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Total Units</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  {...field}
+                                  onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
                       </div>
-
                       <FormField
                         control={propertyForm.control}
                         name="description"
@@ -453,7 +421,19 @@ export default function Admin() {
                           </FormItem>
                         )}
                       />
-
+                      <FormField
+                        control={propertyForm.control}
+                        name="neighborhood"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Neighborhood</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                       <div className="flex justify-end space-x-2">
                         <Button
                           type="button"
@@ -759,7 +739,6 @@ export default function Admin() {
                             <Input
                               type="date"
                               {...field}
-                              value={field.value || ''}
                             />
                           </FormControl>
                           <FormMessage />
