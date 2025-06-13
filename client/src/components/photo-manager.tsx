@@ -24,6 +24,7 @@ interface PhotoData {
 
 export default function PhotoManager({ property, units, onClose }: PhotoManagerProps) {
   const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -107,57 +108,133 @@ export default function PhotoManager({ property, units, onClose }: PhotoManagerP
     }
   };
 
-  const PhotoGrid = ({ images, type, unitId }: { images: string[], type: string, unitId?: number }) => (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h4 className="font-medium capitalize">{type.replace('-', ' ')} Photos</h4>
-        <Button
-          size="sm"
-          onClick={() => triggerFileUpload(type, unitId)}
-          disabled={uploading}
-        >
-          <Upload className="h-4 w-4 mr-2" />
-          Upload Photos
-        </Button>
-      </div>
+  const handleDragOver = (e: React.DragEvent, type: string, unitId?: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(`${type}-${unitId || 'property'}`);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, type: string, unitId?: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(null);
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      // Filter for image files only
+      const imageFiles = Array.from(files).filter(file => 
+        file.type.startsWith('image/')
+      );
       
-      {images.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {images.map((image, index) => (
-            <div key={index} className="relative group">
-              <img
-                src={image}
-                alt={`${type} photo ${index + 1}`}
-                className="w-full h-32 object-cover rounded-lg border"
-              />
-              <Button
-                size="sm"
-                variant="destructive"
-                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={() => deleteMutation.mutate(image)}
-              >
-                <Trash2 className="h-3 w-3" />
-              </Button>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center">
-          <ImageIcon className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-500 dark:text-gray-400">No {type} photos yet</p>
+      if (imageFiles.length > 0) {
+        const dataTransfer = new DataTransfer();
+        imageFiles.forEach(file => dataTransfer.items.add(file));
+        handleFileUpload(dataTransfer.files, type, unitId);
+      } else {
+        toast({ 
+          title: "Invalid file type", 
+          description: "Please upload only image files (JPG, PNG, WebP)",
+          variant: "destructive" 
+        });
+      }
+    }
+  };
+
+  const PhotoGrid = ({ images, type, unitId }: { images: string[], type: string, unitId?: number }) => {
+    const dropZoneId = `${type}-${unitId || 'property'}`;
+    const isDragOver = dragOver === dropZoneId;
+    
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h4 className="font-medium capitalize">{type.replace('-', ' ')} Photos</h4>
           <Button
-            variant="outline"
-            className="mt-2"
+            size="sm"
             onClick={() => triggerFileUpload(type, unitId)}
             disabled={uploading}
           >
             <Upload className="h-4 w-4 mr-2" />
-            Upload First Photo
+            Upload Photos
           </Button>
         </div>
-      )}
-    </div>
-  );
+        
+        <div
+          className={`border-2 border-dashed rounded-lg transition-colors relative ${
+            isDragOver 
+              ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20" 
+              : "border-gray-300 dark:border-gray-600"
+          }`}
+          onDragOver={(e) => handleDragOver(e, type, unitId)}
+          onDragLeave={handleDragLeave}
+          onDrop={(e) => handleDrop(e, type, unitId)}
+        >
+          {images.length > 0 ? (
+            <div className="p-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {images.map((image, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={image}
+                      alt={`${type} photo ${index + 1}`}
+                      className="w-full h-32 object-cover rounded-lg border"
+                    />
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => deleteMutation.mutate(image)}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+              {isDragOver && (
+                <div className="absolute inset-0 flex items-center justify-center bg-blue-500/10 rounded-lg">
+                  <div className="text-blue-600 dark:text-blue-400 font-medium">
+                    Drop images here to upload
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="p-8 text-center">
+              {isDragOver ? (
+                <div className="text-blue-600 dark:text-blue-400">
+                  <Upload className="h-12 w-12 mx-auto mb-4" />
+                  <p className="font-medium">Drop images here to upload</p>
+                </div>
+              ) : (
+                <>
+                  <ImageIcon className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                  <p className="text-gray-500 dark:text-gray-400 mb-4">
+                    No {type.replace('-', ' ')} photos yet
+                  </p>
+                  <p className="text-sm text-gray-400 mb-4">
+                    Drag and drop images here or click to upload
+                  </p>
+                  <Button
+                    variant="outline"
+                    onClick={() => triggerFileUpload(type, unitId)}
+                    disabled={uploading}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload Photos
+                  </Button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
