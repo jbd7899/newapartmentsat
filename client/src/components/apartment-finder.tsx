@@ -38,7 +38,7 @@ export default function ApartmentFinder() {
         ...data,
         moveInDate: data.moveInDate ? new Date(data.moveInDate) : null,
       };
-      const response = await apiRequest("POST", "/api/lead-submissions", submitData);
+      const response = await apiRequest("/api/lead-submissions", "POST", submitData);
       return response.json();
     },
     onSuccess: () => {
