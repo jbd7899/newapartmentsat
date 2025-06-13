@@ -96,10 +96,10 @@ export default function Admin() {
   });
 
   // Property form
-  const propertyFormSchema = insertPropertySchema.extend({
+  const propertyFormSchema = insertPropertySchema.omit({ images: true }).extend({
     description: z.string().optional(),
     neighborhood: z.string().optional(),
-    images: z.array(z.string()).default([]),
+    images: z.array(z.string()).optional(),
     latitude: z.string().optional(),
     longitude: z.string().optional(),
   });
@@ -124,9 +124,9 @@ export default function Admin() {
   });
 
   // Unit form
-  const unitFormSchema = insertUnitSchema.extend({
+  const unitFormSchema = insertUnitSchema.omit({ images: true }).extend({
     availableDate: z.string().optional(),
-    images: z.array(z.string()).default([]),
+    images: z.array(z.string()).optional(),
   });
 
   const unitForm = useForm({
@@ -356,7 +356,7 @@ export default function Admin() {
         ...property,
         description: property.description || "",
         neighborhood: property.neighborhood || "",
-        images: (property.images as string[]) || [],
+        images: (property.images as any) || [],
         latitude: property.latitude || "",
         longitude: property.longitude || "",
       });
@@ -375,7 +375,7 @@ export default function Admin() {
         propertyId: unit.propertyId,
         availableDate: unit.availableDate ? new Date(unit.availableDate).toISOString().split('T')[0] : "",
         rent: unit.rent ? unit.rent / 100 : 0,
-        images: (unit.images as string[]) || [],
+        images: (unit.images as any) || [],
       });
     } else {
       setEditingUnit(null);
