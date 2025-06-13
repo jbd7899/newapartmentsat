@@ -1,18 +1,6 @@
 
 
-interface HeroSectionProps {
-  cityFilter: string;
-  setCityFilter: (city: string) => void;
-  availabilityFilter: boolean;
-  setAvailabilityFilter: (available: boolean) => void;
-}
-
-export default function HeroSection({
-  cityFilter,
-  setCityFilter,
-  availabilityFilter,
-  setAvailabilityFilter,
-}: HeroSectionProps) {
+export default function HeroSection() {
   return (
     <section className="relative warm-gradient py-16 lg:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

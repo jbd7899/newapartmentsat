@@ -14,12 +14,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <HeroSection 
-        cityFilter={cityFilter}
-        setCityFilter={setCityFilter}
-        availabilityFilter={availabilityFilter}
-        setAvailabilityFilter={setAvailabilityFilter}
-      />
+      <HeroSection />
       <MapSection 
         cityFilter={cityFilter}
         setCityFilter={setCityFilter}

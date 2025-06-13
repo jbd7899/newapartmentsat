@@ -229,6 +229,41 @@ export default function MapSection({ cityFilter, setCityFilter, availabilityFilt
           <p className="text-gray-600">Interactive map showing available rental units across Atlanta and Dallas</p>
         </div>
 
+        {/* City Selector & Availability Filter */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+          <div className="flex items-center space-x-4 bg-white p-2 rounded-xl shadow-sm">
+            <Select value={cityFilter} onValueChange={setCityFilter}>
+              <SelectTrigger className="border-0 bg-transparent text-foreground font-medium focus:ring-0 focus:outline-none min-w-[120px]">
+                <SelectValue placeholder="Select City" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Cities</SelectItem>
+                <SelectItem value="atlanta">Atlanta, GA</SelectItem>
+                <SelectItem value="dallas">Dallas, TX</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center space-x-4 bg-white p-2 rounded-xl shadow-sm">
+            <Button
+              variant={availabilityFilter ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setAvailabilityFilter(true)}
+              className={availabilityFilter ? "bg-primary text-white" : "text-foreground hover:bg-gray-100"}
+            >
+              Available
+            </Button>
+            <Button
+              variant={!availabilityFilter ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setAvailabilityFilter(false)}
+              className={!availabilityFilter ? "bg-primary text-white" : "text-foreground hover:bg-gray-100"}
+            >
+              Not Available
+            </Button>
+          </div>
+        </div>
+
         <div className="relative bg-gray-100 rounded-2xl overflow-hidden shadow-lg" style={{ height: "400px" }}>
           {!mapLoaded && !mapError && (
             <div className="flex items-center justify-center h-full text-center p-8">
