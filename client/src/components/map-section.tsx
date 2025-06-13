@@ -100,8 +100,8 @@ export default function MapSection({ cityFilter }: MapSectionProps) {
     }
 
     return () => {
-      if (window.initMap) {
-        delete window.initMap;
+      if ((window as any).initMap) {
+        delete (window as any).initMap;
       }
     };
   }, [cityFilter]);

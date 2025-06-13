@@ -353,7 +353,7 @@ export default function Admin() {
         ...property,
         description: property.description || "",
         neighborhood: property.neighborhood || "",
-        images: property.images || [],
+        images: property.images || [] as string[],
         latitude: property.latitude || "",
         longitude: property.longitude || "",
       });
@@ -372,7 +372,7 @@ export default function Admin() {
         propertyId: unit.propertyId,
         availableDate: unit.availableDate ? new Date(unit.availableDate).toISOString().split('T')[0] : "",
         rent: unit.rent ? unit.rent / 100 : 0,
-        images: unit.images || [],
+        images: unit.images || [] as string[],
       });
     } else {
       setEditingUnit(null);
