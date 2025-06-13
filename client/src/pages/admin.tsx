@@ -388,6 +388,9 @@ export default function Admin() {
         ...property,
         description: property.description || "",
         neighborhood: property.neighborhood || "",
+        amenities: property.amenities || "",
+        petPolicy: property.petPolicy || "",
+        floorPlans: property.floorPlans || "",
         images: (property.images as any) || [],
         latitude: property.latitude || "",
         longitude: property.longitude || "",
@@ -1221,22 +1224,26 @@ export default function Admin() {
                               <Mail className="w-4 h-4 mr-2" />
                               Contact
                             </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className={submission.contacted ? "text-gray-500 border-gray-200" : "text-blue-600 border-blue-200 hover:bg-blue-50"}
-                              onClick={async () => {
-                                await apiRequest(`/api/lead-submissions/${submission.id}`, {
-                                  method: 'PUT',
-                                  body: JSON.stringify({ contacted: !submission.contacted }),
-                                  headers: { 'Content-Type': 'application/json' }
-                                });
-                                leadSubmissions.refetch();
-                              }}
-                            >
-                              <Users className="w-4 h-4 mr-2" />
-                              {submission.contacted ? 'Contacted' : 'Mark Contacted'}
-                            </Button>
+                  <button
+  className={
+    submission.contacted
+      ? "text-gray-500 border-gray-200"
+      : "text-blue-600 border-blue-200 hover:bg-blue-50"
+  }
+  onClick={async () => {
+    await apiRequest(
+      `/api/lead-submissions/${submission.id}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contacted: !submission.contacted }),
+      }
+    );
+    leadSubmissions.refetch();
+  }}
+>
+  <U…
+</button>
                           </div>
                         </CardContent>
                       </Card>
