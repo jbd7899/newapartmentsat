@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Copy, Share2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useForm } from "react-hook-form";
@@ -22,6 +23,8 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { insertPropertySchema, insertUnitSchema } from "@shared/schema";
 import type { Property, Unit, LeadSubmission } from "@shared/schema";
+import Metrics from "@/components/admin/metrics";
+import SearchBox from "@/components/admin/search-box";
 import { 
   Plus, 
   Edit, 
@@ -57,6 +60,8 @@ export default function Admin() {
   const [editingUnit, setEditingUnit] = useState<Unit | null>(null);
   const [expandedProperties, setExpandedProperties] = useState<Set<number>>(new Set());
   const [photoManagerProperty, setPhotoManagerProperty] = useState<Property | null>(null);
+  const [propertySearch, setPropertySearch] = useState("");
+  const [leadSearch, setLeadSearch] = useState("");
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -117,6 +122,9 @@ export default function Admin() {
   const propertyFormSchema = insertPropertySchema.omit({ images: true }).extend({
     description: z.string().optional(),
     neighborhood: z.string().optional(),
+    amenities: z.string().optional(),
+    petPolicy: z.string().optional(),
+    floorPlans: z.string().optional(),
     images: z.array(z.string()).optional(),
     latitude: z.string().optional(),
     longitude: z.string().optional(),
@@ -135,6 +143,9 @@ export default function Admin() {
       totalUnits: 0,
       description: "",
       neighborhood: "",
+      amenities: "",
+      petPolicy: "",
+      floorPlans: "",
       images: [],
       latitude: "",
       longitude: "",
@@ -323,6 +334,9 @@ export default function Admin() {
         ...data,
         description: data.description || null,
         neighborhood: data.neighborhood || null,
+        amenities: data.amenities || null,
+        petPolicy: data.petPolicy || null,
+        floorPlans: data.floorPlans || null,
         images: data.images || null,
         latitude: data.latitude || null,
         longitude: data.longitude || null,
@@ -444,10 +458,29 @@ export default function Admin() {
     <div className="min-h-screen bg-background">
       <Navigation />
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Manage properties, units, and view lead submissions</p>
-        </div>
+        <div className="mb-8 space-y-4">
+          <div>
+            <h1 className="text-4xl font-bold text-foreground mb-2">Admin Dashboard</h1>
+            <p className="text-muted-foreground">Manage properties, units, and view lead submissions</p>
+          </div>
+          <Card className="md:max-w-md">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Public Listing Link</CardTitle>
+            </CardHeader>
+            <CardContent className="flex items-center justify-between">
+              <span className="text-sm break-all">{window.location.origin + '/public'}</span>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => navigator.clipboard.writeText(window.location.origin + '/public')}
+                title="Copy link"
+              >
+                <Copy className="w-4 h-4" />
+              </Button>
+          </CardContent>
+        </Card>
+        <Metrics properties={properties.data} units={units.data} leads={leadSubmissions.data} />
+      </div>
 
         <Tabs defaultValue="properties" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2 bg-gray-100 rounded-lg p-1">
@@ -501,8 +534,8 @@ export default function Admin() {
                   </div>
                   <Dialog open={isPropertyDialogOpen} onOpenChange={setIsPropertyDialogOpen}>
                     <DialogTrigger asChild>
-                      <Button 
-                        onClick={() => openPropertyDialog()} 
+                      <Button
+                        onClick={() => openPropertyDialog()}
                         className="bg-primary hover:bg-primary/90"
                         disabled={createPropertyMutation.isPending}
                       >
@@ -678,6 +711,45 @@ export default function Admin() {
                               </FormItem>
                             )}
                           />
+                          <FormField
+                            control={propertyForm.control}
+                            name="amenities"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Amenities</FormLabel>
+                                <FormControl>
+                                  <Textarea {...field} placeholder="Pool, Gym, Parking" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={propertyForm.control}
+                            name="petPolicy"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Pet Policy</FormLabel>
+                                <FormControl>
+                                  <Input {...field} placeholder="Cats and dogs allowed" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={propertyForm.control}
+                            name="floorPlans"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Floor Plans</FormLabel>
+                                <FormControl>
+                                  <Input {...field} placeholder="Link or description" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
                           <div className="flex justify-end space-x-2">
                             <Button
                               type="button"
@@ -702,11 +774,16 @@ export default function Admin() {
                       </Form>
                     </DialogContent>
                   </Dialog>
+                  <SearchBox placeholder="Search properties" onChange={setPropertySearch} />
                 </div>
 
                 {/* Properties List */}
                 <div className="space-y-4">
-                  {properties.data?.map((property: Property) => {
+                  {properties.data
+                    ?.filter((p: Property) =>
+                      p.name.toLowerCase().includes(propertySearch.toLowerCase())
+                    )
+                    .map((property: Property) => {
                     const propertyUnits = units.data?.filter((unit: Unit) => unit.propertyId === property.id) || [];
                     const isExpanded = expandedProperties.has(property.id);
 
@@ -936,11 +1013,15 @@ export default function Admin() {
                                 <SelectValue placeholder="Select property" />
                               </SelectTrigger>
                               <SelectContent>
-                                {properties.data?.map((property: Property) => (
-                                  <SelectItem key={property.id} value={property.id.toString()}>
-                                    {property.name}
-                                  </SelectItem>
-                                ))}
+                                {properties.data
+                                  ?.filter((p: Property) =>
+                                    p.name.toLowerCase().includes(propertySearch.toLowerCase())
+                                  )
+                                  .map((property: Property) => (
+                                    <SelectItem key={property.id} value={property.id.toString()}>
+                                      {property.name}
+                                    </SelectItem>
+                                  ))}
                               </SelectContent>
                             </Select>
                           </FormControl>
@@ -1068,16 +1149,25 @@ export default function Admin() {
                       <p className="text-sm text-gray-600">View and manage prospective tenant inquiries</p>
                     </div>
                   </div>
+                  <SearchBox placeholder="Search leads" onChange={setLeadSearch} />
                 </div>
 
                 <div className="grid gap-4">
-                  {leadSubmissions.data?.length === 0 ? (
+                  {leadSubmissions.data?.filter((l: LeadSubmission) =>
+                    l.name.toLowerCase().includes(leadSearch.toLowerCase()) ||
+                    l.email.toLowerCase().includes(leadSearch.toLowerCase())
+                  ).length === 0 ? (
                     <div className="text-center py-12 bg-gray-50 rounded-lg">
                       <Mail className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                       <p className="text-gray-500">No lead submissions yet</p>
                     </div>
                   ) : (
-                    leadSubmissions.data?.map((submission: LeadSubmission) => (
+                    leadSubmissions.data
+                      ?.filter((l: LeadSubmission) =>
+                        l.name.toLowerCase().includes(leadSearch.toLowerCase()) ||
+                        l.email.toLowerCase().includes(leadSearch.toLowerCase())
+                      )
+                      .map((submission: LeadSubmission) => (
                       <Card key={submission.id} className="border-2 border-gray-200 hover:border-green-300 transition-all">
                         <CardContent className="p-6">
                           <div className="flex items-start justify-between mb-4">
@@ -1131,9 +1221,21 @@ export default function Admin() {
                               <Mail className="w-4 h-4 mr-2" />
                               Contact
                             </Button>
-                            <Button size="sm" variant="outline" className="text-blue-600 border-blue-200 hover:bg-blue-50">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className={submission.contacted ? "text-gray-500 border-gray-200" : "text-blue-600 border-blue-200 hover:bg-blue-50"}
+                              onClick={async () => {
+                                await apiRequest(`/api/lead-submissions/${submission.id}`, {
+                                  method: 'PUT',
+                                  body: JSON.stringify({ contacted: !submission.contacted }),
+                                  headers: { 'Content-Type': 'application/json' }
+                                });
+                                leadSubmissions.refetch();
+                              }}
+                            >
                               <Users className="w-4 h-4 mr-2" />
-                              View Details
+                              {submission.contacted ? 'Contacted' : 'Mark Contacted'}
                             </Button>
                           </div>
                         </CardContent>

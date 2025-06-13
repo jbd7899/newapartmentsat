@@ -170,6 +170,15 @@ export class DatabaseStorage implements IStorage {
   async getLeadSubmissions(): Promise<LeadSubmission[]> {
     return await db.select().from(leadSubmissions);
   }
+
+  async updateLeadSubmission(id: number, updates: Partial<InsertLeadSubmission>): Promise<LeadSubmission | undefined> {
+    const [updated] = await db
+      .update(leadSubmissions)
+      .set(updates)
+      .where(eq(leadSubmissions.id, id))
+      .returning();
+    return updated || undefined;
+  }
 }
 
 export const storage = new DatabaseStorage();
