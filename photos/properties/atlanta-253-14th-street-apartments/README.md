@@ -14,7 +14,7 @@
 
 ## File Requirements
 - Formats: JPG, PNG, WebP
-- Max size: 5MB per image
+- Max size: 20MB per image
 - Descriptive names recommended
 
 Photos will automatically appear in property listings and unit details.
