@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { MapPin, Plus, Minus } from "lucide-react";
+import type { Property } from "@shared/schema";
 
 declare global {
   interface Window {
@@ -13,6 +15,11 @@ export default function MapSection() {
   const mapRef = useRef<HTMLDivElement>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(false);
+  const [mapInstance, setMapInstance] = useState<any>(null);
+
+  const { data: properties = [] } = useQuery<Property[]>({
+    queryKey: ["/api/properties"],
+  });
 
   useEffect(() => {
     const initializeMap = () => {
@@ -35,31 +42,20 @@ export default function MapSection() {
               elementType: "geometry",
               stylers: [{ color: "#e9e9e9" }],
             },
+            {
+              featureType: "road",
+              elementType: "geometry",
+              stylers: [{ color: "#ffffff" }],
+            },
+            {
+              featureType: "road",
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#666666" }],
+            },
           ],
         });
 
-        // Sample property markers
-        const properties = [
-          { lat: 33.7701, lng: -84.3870, name: "The Loft District" },
-          { lat: 32.7767, lng: -96.7970, name: "Skyline Studios" },
-        ];
-
-        properties.forEach((property) => {
-          new window.google.maps.Marker({
-            position: { lat: property.lat, lng: property.lng },
-            map: map,
-            title: property.name,
-            icon: {
-              path: window.google.maps.SymbolPath.CIRCLE,
-              scale: 8,
-              fillColor: "#2D5AA0",
-              fillOpacity: 1,
-              strokeColor: "#ffffff",
-              strokeWeight: 2,
-            },
-          });
-        });
-
+        setMapInstance(map);
         setMapLoaded(true);
       } catch (error) {
         console.error("Map initialization failed:", error);
@@ -70,7 +66,7 @@ export default function MapSection() {
     // Load Google Maps API
     if (!window.google) {
       const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''}&callback=initMap`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBHLett8djBo62dDXj0EjCpkS8cfJlrWHY&callback=initMap`;
       script.async = true;
       script.defer = true;
       
@@ -92,6 +88,97 @@ export default function MapSection() {
       }
     };
   }, []);
+
+  // Add markers when properties data is available and map is loaded
+  useEffect(() => {
+    if (!mapInstance || !properties.length) return;
+
+    // Clear existing markers
+    const markers: any[] = [];
+
+    // Default coordinates for properties that don't have lat/lng
+    const defaultCoordinates = {
+      "The Loft District": { lat: 33.7701, lng: -84.3870 },
+      "Skyline Studios": { lat: 32.7767, lng: -96.7970 },
+    };
+
+    properties.forEach((property) => {
+      let lat, lng;
+      
+      // Use stored coordinates if available, otherwise use defaults
+      if (property.latitude && property.longitude) {
+        lat = parseFloat(property.latitude);
+        lng = parseFloat(property.longitude);
+      } else {
+        const coords = defaultCoordinates[property.name as keyof typeof defaultCoordinates];
+        if (coords) {
+          lat = coords.lat;
+          lng = coords.lng;
+        } else {
+          // Skip properties without coordinates
+          return;
+        }
+      }
+
+      const marker = new window.google.maps.Marker({
+        position: { lat, lng },
+        map: mapInstance,
+        title: property.name,
+        icon: {
+          path: window.google.maps.SymbolPath.CIRCLE,
+          scale: 10,
+          fillColor: "#2D5AA0",
+          fillOpacity: 1,
+          strokeColor: "#ffffff",
+          strokeWeight: 3,
+        },
+      });
+
+      // Create info window for each property
+      const infoWindow = new window.google.maps.InfoWindow({
+        content: `
+          <div style="padding: 8px; max-width: 250px;">
+            <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: bold; color: #333;">
+              ${property.name}
+            </h3>
+            <p style="margin: 0 0 4px 0; color: #666; font-size: 14px;">
+              ${property.address}, ${property.city}, ${property.state}
+            </p>
+            <p style="margin: 0 0 8px 0; color: #666; font-size: 13px;">
+              ${property.bedrooms === 0 ? 'Studio' : `${property.bedrooms} bed`} • ${property.bathrooms} bath • ${property.totalUnits} units
+            </p>
+            <button onclick="window.location.href='/property/${property.id}'" 
+              style="background: #2D5AA0; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px;">
+              View Details
+            </button>
+          </div>
+        `,
+      });
+
+      marker.addListener("click", () => {
+        infoWindow.open(mapInstance, marker);
+      });
+
+      markers.push(marker);
+    });
+
+    // Adjust map bounds to show all markers if there are any
+    if (markers.length > 0) {
+      const bounds = new window.google.maps.LatLngBounds();
+      markers.forEach(marker => bounds.extend(marker.getPosition()));
+      mapInstance.fitBounds(bounds);
+      
+      // Don't zoom in too much for single markers
+      const zoom = mapInstance.getZoom();
+      if (zoom > 15) {
+        mapInstance.setZoom(15);
+      }
+    }
+
+    return () => {
+      markers.forEach(marker => marker.setMap(null));
+    };
+  }, [mapInstance, properties]);
 
   return (
     <section className="py-12 bg-white">
