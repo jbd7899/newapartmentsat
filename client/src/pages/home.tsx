@@ -12,7 +12,7 @@ export default function Home() {
   const [availabilityFilter, setAvailabilityFilter] = useState<boolean>(true);
 
   return (
-    <div className="min-h-screen bg-warm">
+    <div className="min-h-screen bg-background">
       <Navigation />
       <HeroSection 
         cityFilter={cityFilter}

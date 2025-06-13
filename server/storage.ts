@@ -147,6 +147,11 @@ export class MemStorage implements IStorage {
     const newProperty: Property = {
       ...property,
       id,
+      images: property.images || [],
+      description: property.description || null,
+      neighborhood: property.neighborhood || null,
+      latitude: property.latitude || null,
+      longitude: property.longitude || null,
       createdAt: new Date(),
     };
     this.properties.set(id, newProperty);
@@ -177,7 +182,14 @@ export class MemStorage implements IStorage {
 
   async createUnit(unit: InsertUnit): Promise<Unit> {
     const id = this.currentUnitId++;
-    const newUnit: Unit = { ...unit, id };
+    const newUnit: Unit = { 
+      ...unit, 
+      id,
+      isAvailable: unit.isAvailable ?? false,
+      images: unit.images || [],
+      availableDate: unit.availableDate || null,
+      rent: unit.rent || null
+    };
     this.units.set(id, newUnit);
     return newUnit;
   }
@@ -200,6 +212,9 @@ export class MemStorage implements IStorage {
     const newSubmission: LeadSubmission = {
       ...submission,
       id,
+      moveInDate: submission.moveInDate || null,
+      desiredBedrooms: submission.desiredBedrooms || null,
+      additionalInfo: submission.additionalInfo || null,
       submittedAt: new Date(),
     };
     this.leadSubmissions.set(id, newSubmission);

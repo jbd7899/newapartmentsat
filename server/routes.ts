@@ -1,28 +1,9 @@
 import type { Express } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertPropertySchema, insertUnitSchema, insertLeadSubmissionSchema } from "@shared/schema";
 import { z } from "zod";
-import nodemailer from "nodemailer";
-import multer from "multer";
-import path from "path";
-import fs from "fs";
-
-const upload = multer({ 
-  dest: 'uploads/',
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
-});
-
-// Email configuration
-const transporter = nodemailer.createTransporter({
-  host: process.env.SMTP_HOST || "smtp.gmail.com",
-  port: parseInt(process.env.SMTP_PORT || "587"),
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER || process.env.EMAIL_USER,
-    pass: process.env.SMTP_PASS || process.env.EMAIL_PASS,
-  },
-});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Properties routes
@@ -157,25 +138,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = insertLeadSubmissionSchema.parse(req.body);
       const submission = await storage.createLeadSubmission(validatedData);
       
-      // Send email notification
-      try {
-        await transporter.sendMail({
-          from: process.env.SMTP_USER || process.env.EMAIL_USER,
-          to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
-          subject: "New Apartment Finder Submission",
-          html: `
-            <h2>New Lead Submission</h2>
-            <p><strong>Name:</strong> ${submission.name}</p>
-            <p><strong>Email:</strong> ${submission.email}</p>
-            <p><strong>Move-in Date:</strong> ${submission.moveInDate || 'Not specified'}</p>
-            <p><strong>Desired Bedrooms:</strong> ${submission.desiredBedrooms || 'Not specified'}</p>
-            <p><strong>Additional Info:</strong> ${submission.additionalInfo || 'None'}</p>
-            <p><strong>Submitted At:</strong> ${submission.submittedAt}</p>
-          `,
-        });
-      } catch (emailError) {
-        console.error("Failed to send email notification:", emailError);
-      }
+      // Email notification would be implemented here
+      console.log("New lead submission received:", submission.name, submission.email);
       
       res.status(201).json(submission);
     } catch (error) {
@@ -195,28 +159,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // File upload route
-  app.post("/api/upload", upload.array('images', 10), async (req, res) => {
-    try {
-      if (!req.files || !Array.isArray(req.files)) {
-        return res.status(400).json({ message: "No files uploaded" });
-      }
-
-      const uploadedFiles = req.files.map(file => ({
-        filename: file.filename,
-        originalName: file.originalname,
-        path: `/uploads/${file.filename}`,
-        size: file.size,
-      }));
-
-      res.json({ files: uploadedFiles });
-    } catch (error) {
-      res.status(500).json({ message: "Failed to upload files" });
-    }
+  // File upload would be implemented here
+  app.post("/api/upload", async (req, res) => {
+    res.status(501).json({ message: "File upload not implemented yet" });
   });
-
-  // Serve uploaded files
-  app.use('/uploads', express.static('uploads'));
 
   const httpServer = createServer(app);
   return httpServer;
