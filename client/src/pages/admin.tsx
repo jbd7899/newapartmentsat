@@ -23,6 +23,7 @@ import {
   Plus, 
   Edit, 
   Trash, 
+  Trash2,
   Upload, 
   Building2, 
   MapPin, 
@@ -168,6 +169,20 @@ export default function Admin() {
     },
     onError: (error) => {
       toast({ title: "Error updating unit", variant: "destructive" });
+    },
+  });
+
+  const deleteUnitMutation = useMutation({
+    mutationFn: async (unitId: number) => {
+      const response = await apiRequest(`/api/units/${unitId}`, "DELETE");
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/units"] });
+      toast({ title: "Unit deleted successfully" });
+    },
+    onError: (error) => {
+      toast({ title: "Error deleting unit", variant: "destructive" });
     },
   });
 
@@ -557,6 +572,15 @@ export default function Admin() {
                                   <Building2 className="w-4 h-4" />
                                   Units ({propertyUnits.length})
                                 </h4>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => openUnitDialog(undefined, property.id)}
+                                  className="text-xs"
+                                >
+                                  <Plus className="w-3 h-3 mr-1" />
+                                  Add Unit
+                                </Button>
                               </div>
 
                               {propertyUnits.length === 0 ? (
@@ -618,6 +642,14 @@ export default function Admin() {
                                             ) : (
                                               <Eye className="w-3 h-3" />
                                             )}
+                                          </Button>
+                                          <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            onClick={() => deleteUnit(unit.id)}
+                                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                          >
+                                            <Trash2 className="w-3 h-3" />
                                           </Button>
                                         </div>
                                       </div>
