@@ -2,7 +2,7 @@
 
 export default function HeroSection() {
   return (
-    <section className="relative warm-gradient py-16 lg:py-24">
+    <section className="relative warm-gradient py-16 lg:py-24 pt-[0px] pb-[0px]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">

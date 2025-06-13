@@ -225,8 +225,6 @@ export default function MapSection({ cityFilter, setCityFilter, availabilityFilt
     <section className="py-12 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-foreground mb-4">Explore Our Properties</h2>
-          <p className="text-gray-600">Interactive map showing available rental units across Atlanta and Dallas</p>
         </div>
 
         {/* City Selector & Availability Filter */}
