@@ -754,6 +754,34 @@ export default function Admin() {
                               </FormItem>
                             )}
                           />
+                          <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                              control={propertyForm.control}
+                              name="latitude"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Latitude</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} placeholder="33.7490" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={propertyForm.control}
+                              name="longitude"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Longitude</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} placeholder="-84.3880" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
                           <div className="flex justify-end space-x-2">
                             <Button
                               type="button"
