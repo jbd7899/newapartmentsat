@@ -12,6 +12,13 @@ import { existsSync } from "fs";
 import sharp from "sharp";
 import { geocodeAddress } from "./geocode";
 
+function formatCoordinate(value: string | number | undefined): string | undefined {
+  if (value === undefined || value === null) return undefined;
+  const num = typeof value === 'number' ? value : parseFloat(value);
+  if (Number.isNaN(num)) return undefined;
+  return num.toFixed(5);
+}
+
 async function populateMissingCoordinates() {
   try {
     const props = await storage.getProperties();
@@ -119,6 +126,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
+      validatedData.latitude = formatCoordinate(validatedData.latitude) as any;
+      validatedData.longitude = formatCoordinate(validatedData.longitude) as any;
+
       const property = await storage.createProperty(validatedData);
       res.status(201).json(property);
     } catch (error) {
@@ -151,6 +161,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
       }
+
+      validatedData.latitude = formatCoordinate(validatedData.latitude) as any;
+      validatedData.longitude = formatCoordinate(validatedData.longitude) as any;
       const property = await storage.updateProperty(id, validatedData);
       
       if (!property) {
