@@ -14,7 +14,22 @@ import {
   type UpsertUser
 } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
+
+export async function initStorage() {
+  await db.execute(sql`
+    CREATE TABLE IF NOT EXISTS lead_submissions (
+      id serial PRIMARY KEY,
+      name text NOT NULL,
+      email text NOT NULL,
+      move_in_date timestamp,
+      desired_bedrooms text,
+      additional_info text,
+      contacted boolean NOT NULL DEFAULT false,
+      submitted_at timestamp DEFAULT now()
+    );
+  `);
+}
 
 export interface IStorage {
   // Properties
