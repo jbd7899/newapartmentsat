@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { initStorage } from "./storage";
 import { config, validateProductionConfig, addSecurityHeaders } from "./config";
 
 const app = express();
@@ -49,6 +50,8 @@ app.use((req, res, next) => {
   try {
     // Validate production configuration
     validateProductionConfig();
+
+    await initStorage();
 
     const server = await registerRoutes(app);
 
