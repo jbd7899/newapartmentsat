@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MapPin, Plus, Minus } from "lucide-react";
+import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import type { Property } from "@shared/schema";
 
 declare global {
@@ -24,6 +25,7 @@ export default function MapSection({ cityFilter, setCityFilter, availabilityFilt
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(false);
   const [mapInstance, setMapInstance] = useState<any>(null);
+  const [clusterer, setClusterer] = useState<MarkerClusterer | null>(null);
 
   const { data: properties = [] } = useQuery<Property[]>({
     queryKey: ["/api/properties"],
@@ -123,7 +125,10 @@ export default function MapSection({ cityFilter, setCityFilter, availabilityFilt
   useEffect(() => {
     if (!mapInstance || !properties.length) return;
 
-    // Clear existing markers
+    if (clusterer) {
+      clusterer.clearMarkers();
+    }
+
     const markers: any[] = [];
 
 
@@ -155,12 +160,7 @@ export default function MapSection({ cityFilter, setCityFilter, availabilityFilt
         map: mapInstance,
         title: property.name,
         icon: {
-          path: window.google.maps.SymbolPath.CIRCLE,
-          scale: 10,
-          fillColor: "#2D5AA0",
-          fillOpacity: 1,
-          strokeColor: "#ffffff",
-          strokeWeight: 3,
+          url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
         },
       });
 
@@ -192,13 +192,14 @@ export default function MapSection({ cityFilter, setCityFilter, availabilityFilt
       markers.push(marker);
     });
 
-    // Adjust map bounds to show all markers if there are any
     if (markers.length > 0) {
       const bounds = new window.google.maps.LatLngBounds();
       markers.forEach(marker => bounds.extend(marker.getPosition()));
       mapInstance.fitBounds(bounds);
-      
-      // Don't zoom in too much for single markers
+
+      const cluster = new MarkerClusterer({ map: mapInstance, markers });
+      setClusterer(cluster);
+
       const zoom = mapInstance.getZoom();
       if (zoom > 15) {
         mapInstance.setZoom(15);
@@ -207,6 +208,7 @@ export default function MapSection({ cityFilter, setCityFilter, availabilityFilt
 
     return () => {
       markers.forEach(marker => marker.setMap(null));
+      clusterer?.clearMarkers();
     };
   }, [mapInstance, properties, cityFilter]);
 
@@ -294,24 +296,26 @@ export default function MapSection({ cityFilter, setCityFilter, availabilityFilt
           <div ref={mapRef} className="w-full h-full" />
 
           {/* Map controls */}
-          {mapLoaded && (
-            <div className="absolute top-4 right-4 flex flex-col space-y-2">
-              <Button
-                size="icon"
-                variant="secondary"
-                className="bg-white shadow-md hover:shadow-lg transition-shadow"
-              >
-                <Plus className="w-5 h-5 text-gray-600" />
-              </Button>
-              <Button
-                size="icon"
-                variant="secondary"
-                className="bg-white shadow-md hover:shadow-lg transition-shadow"
-              >
-                <Minus className="w-5 h-5 text-gray-600" />
-              </Button>
-            </div>
-          )}
+              {mapLoaded && (
+                <div className="absolute top-4 right-4 flex flex-col space-y-2">
+                  <Button
+                    size="icon"
+                    variant="secondary"
+                    className="bg-white shadow-md hover:shadow-lg transition-shadow"
+                    onClick={() => mapInstance && mapInstance.setZoom(mapInstance.getZoom() + 1)}
+                  >
+                    <Plus className="w-5 h-5 text-gray-600" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="secondary"
+                    className="bg-white shadow-md hover:shadow-lg transition-shadow"
+                    onClick={() => mapInstance && mapInstance.setZoom(mapInstance.getZoom() - 1)}
+                  >
+                    <Minus className="w-5 h-5 text-gray-600" />
+                  </Button>
+                </div>
+              )}
         </div>
       </div>
     </section>
