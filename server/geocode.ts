@@ -16,7 +16,7 @@ export async function geocodeAddress(address: string): Promise<GeoResult | null>
 
     if (data.status === 'OK' && Array.isArray(data.results) && data.results.length > 0) {
       const { lat, lng } = data.results[0].geometry.location;
-      return { lat: String(lat), lon: String(lng) };
+      return { lat: lat.toFixed(5), lon: lng.toFixed(5) };
     }
 
     return null;
