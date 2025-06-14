@@ -239,7 +239,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/units", isAuthenticated, async (req, res) => {
     try {
-      const validatedData = insertUnitSchema.parse(req.body);
+      const body = {
+        ...req.body,
+        availableDate:
+          typeof req.body.availableDate === "string" && req.body.availableDate
+            ? new Date(req.body.availableDate)
+            : req.body.availableDate ?? undefined,
+      };
+      const validatedData = insertUnitSchema.parse(body);
       const unit = await storage.createUnit(validatedData);
       res.status(201).json(unit);
     } catch (error) {
@@ -253,7 +260,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/units/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const validatedData = insertUnitSchema.partial().parse(req.body);
+      const body = {
+        ...req.body,
+        availableDate:
+          typeof req.body.availableDate === "string" && req.body.availableDate
+            ? new Date(req.body.availableDate)
+            : req.body.availableDate ?? undefined,
+      };
+      const validatedData = insertUnitSchema.partial().parse(body);
       const unit = await storage.updateUnit(id, validatedData);
       
       if (!unit) {
