@@ -21,6 +21,39 @@ import { eq, sql } from "drizzle-orm";
 
 export async function initStorage() {
   await db.execute(sql`
+    CREATE TABLE IF NOT EXISTS properties (
+      id serial PRIMARY KEY,
+      name text NOT NULL,
+      address text NOT NULL,
+      city text NOT NULL,
+      state text NOT NULL,
+      zip_code text NOT NULL,
+      bedrooms integer NOT NULL,
+      bathrooms text NOT NULL,
+      total_units integer NOT NULL,
+      description text,
+      neighborhood text,
+      amenities text,
+      pet_policy text,
+      floor_plans text,
+      images text[],
+      latitude text,
+      longitude text,
+      created_at timestamp DEFAULT now()
+    );
+
+    CREATE TABLE IF NOT EXISTS units (
+      id serial PRIMARY KEY,
+      property_id integer NOT NULL REFERENCES properties(id),
+      unit_number text NOT NULL,
+      bedrooms integer NOT NULL DEFAULT 0,
+      bathrooms text NOT NULL DEFAULT '',
+      is_available boolean NOT NULL DEFAULT false,
+      available_date timestamp,
+      rent integer,
+      images text[]
+    );
+
     CREATE TABLE IF NOT EXISTS lead_submissions (
       id serial PRIMARY KEY,
       name text NOT NULL,
@@ -30,6 +63,35 @@ export async function initStorage() {
       additional_info text,
       contacted boolean NOT NULL DEFAULT false,
       submitted_at timestamp DEFAULT now()
+    );
+
+    CREATE TABLE IF NOT EXISTS users (
+      id varchar PRIMARY KEY,
+      email varchar UNIQUE,
+      first_name varchar,
+      last_name varchar,
+      profile_image_url varchar,
+      created_at timestamp DEFAULT now(),
+      updated_at timestamp DEFAULT now()
+    );
+
+    CREATE TABLE IF NOT EXISTS sessions (
+      sid varchar PRIMARY KEY,
+      sess jsonb NOT NULL,
+      expire timestamp NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON sessions(expire);
+
+    CREATE TABLE IF NOT EXISTS branding (
+      id serial PRIMARY KEY,
+      company_name text NOT NULL DEFAULT 'UrbanLiving',
+      logo_url text,
+      primary_color text DEFAULT '#2563eb',
+      secondary_color text DEFAULT '#4f46e5',
+      cities text[],
+      header text,
+      subtitle text,
+      footer_text text
     );
   `);
 }
