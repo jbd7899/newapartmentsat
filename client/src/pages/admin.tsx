@@ -165,6 +165,8 @@ export default function Admin() {
     defaultValues: {
       propertyId: 0,
       unitNumber: "",
+      bedrooms: 0,
+      bathrooms: "",
       isAvailable: false,
       availableDate: "",
       rent: 0,
@@ -367,6 +369,8 @@ export default function Admin() {
         ...data,
         availableDate: data.availableDate ? new Date(data.availableDate).toISOString() : null,
         rent: data.rent ? Math.round(data.rent * 100) : null,
+        bedrooms: parseInt(data.bedrooms) || 0,
+        bathrooms: data.bathrooms,
       };
 
       if (editingUnit) {
@@ -410,6 +414,8 @@ export default function Admin() {
       unitForm.reset({
         ...unit,
         propertyId: unit.propertyId,
+        bedrooms: unit.bedrooms,
+        bathrooms: unit.bathrooms,
         availableDate: unit.availableDate ? new Date(unit.availableDate).toISOString().split('T')[0] : "",
         rent: unit.rent ? unit.rent / 100 : 0,
         images: (unit.images as any) || [],
@@ -419,6 +425,8 @@ export default function Admin() {
       unitForm.reset({
         propertyId: propertyId || 0,
         unitNumber: "",
+        bedrooms: 0,
+        bathrooms: "",
         isAvailable: true,
         availableDate: "",
         rent: 0,
@@ -843,7 +851,9 @@ export default function Admin() {
                                         <MapPin className="w-4 h-4" />
                                         {property.address}, {property.city}, {property.state}
                                       </span>
-                                      <span>{property.bedrooms} bed • {property.bathrooms} bath</span>
+                                      {property.totalUnits === 1 && (
+                                        <span>{`${property.bedrooms} bed • ${property.bathrooms} bath`}</span>
+                                      )}
                                       <span>{property.totalUnits} units</span>
                                     </div>
                                   </div>
@@ -985,12 +995,18 @@ export default function Admin() {
                                         <div className="space-y-2 text-sm">
                                           <div className="flex items-center justify-between">
                                             <span className="text-gray-600">Status:</span>
-                                            <Badge 
+                                            <Badge
                                               variant={unit.isAvailable ? "default" : "secondary"}
                                               className={unit.isAvailable ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}
                                             >
                                               {unit.isAvailable ? "Available" : "Not Available"}
                                             </Badge>
+                                          </div>
+                                          <div className="flex items-center justify-between">
+                                            <span className="text-gray-600">Bed/Bath:</span>
+                                            <span className="text-gray-900">
+                                              {unit.bedrooms} bed • {unit.bathrooms} bath
+                                            </span>
                                           </div>
                                           
                                           {unit.rent && (
@@ -1074,6 +1090,36 @@ export default function Admin() {
                           <FormLabel>Unit Number *</FormLabel>
                           <FormControl>
                             <Input {...field} placeholder="101" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={unitForm.control}
+                      name="bedrooms"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Bedrooms *</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={unitForm.control}
+                      name="bathrooms"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Bathrooms *</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="1" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

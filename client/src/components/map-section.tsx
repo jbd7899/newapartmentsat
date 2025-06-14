@@ -175,7 +175,7 @@ export default function MapSection({ cityFilter, setCityFilter, availabilityFilt
               ${property.address}, ${property.city}, ${property.state}
             </p>
             <p style="margin: 0 0 8px 0; color: #666; font-size: 13px;">
-              ${property.bedrooms === 0 ? 'Studio' : `${property.bedrooms} bed`} • ${property.bathrooms} bath • ${property.totalUnits} units
+              ${property.totalUnits === 1 ? `${property.bedrooms === 0 ? 'Studio' : `${property.bedrooms} bed`} • ${property.bathrooms} bath • ` : ''}${property.totalUnits} units
             </p>
             <button onclick="window.location.href='/property/${property.id}'" 
               style="background: #2D5AA0; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px;">
@@ -279,7 +279,7 @@ export default function MapSection({ cityFilter, setCityFilter, availabilityFilt
                     <p className="text-xs text-gray-500 mb-3">{property.neighborhood}</p>
                     <div className="flex justify-between items-center">
                       <span className="text-xs bg-gray-100 px-2 py-1 rounded">
-                        {property.bedrooms} bed • {property.bathrooms} bath
+                        {property.totalUnits === 1 ? `${property.bedrooms} bed • ${property.bathrooms} bath` : `${property.totalUnits} units`}
                       </span>
                       <Button size="sm" variant="outline" className="text-xs h-7">
                         View Details
