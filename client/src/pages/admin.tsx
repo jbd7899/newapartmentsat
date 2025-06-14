@@ -547,7 +547,7 @@ export default function Admin() {
                         Add Property
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-2xl">
+                    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle>
                           {editingProperty ? "Edit Property" : "Add New Property"}
@@ -555,7 +555,7 @@ export default function Admin() {
                       </DialogHeader>
                       <Form {...propertyForm}>
                         <form onSubmit={propertyForm.handleSubmit(onPropertySubmit)} className="space-y-4">
-                          <div className="grid grid-cols-2 gap-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormField
                               control={propertyForm.control}
                               name="name"
@@ -583,7 +583,7 @@ export default function Admin() {
                               )}
                             />
                           </div>
-                          <div className="grid grid-cols-3 gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                             <FormField
                               control={propertyForm.control}
                               name="city"
@@ -640,7 +640,7 @@ export default function Admin() {
                               )}
                             />
                           </div>
-                          <div className="grid grid-cols-3 gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                             <FormField
                               control={propertyForm.control}
                               name="bedrooms"
@@ -754,6 +754,34 @@ export default function Admin() {
                               </FormItem>
                             )}
                           />
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormField
+                              control={propertyForm.control}
+                              name="latitude"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Latitude</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} placeholder="33.7490" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={propertyForm.control}
+                              name="longitude"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Longitude</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} placeholder="-84.3880" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
                           <div className="flex justify-end space-x-2">
                             <Button
                               type="button"
@@ -997,7 +1025,7 @@ export default function Admin() {
 
             {/* Unit Dialog */}
             <Dialog open={isUnitDialogOpen} onOpenChange={setIsUnitDialogOpen}>
-              <DialogContent className="max-w-md">
+              <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>
                     {editingUnit ? "Edit Unit" : "Add New Unit"}
@@ -1193,7 +1221,7 @@ export default function Admin() {
                             </div>
                           </div>
                           
-                          <div className="grid grid-cols-2 gap-4 mb-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                             {submission.moveInDate && (
                               <div>
                                 <p className="text-sm font-medium text-gray-700">Move-in Date</p>
