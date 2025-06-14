@@ -172,6 +172,14 @@ export default function Admin() {
     },
   });
 
+  const isAvailableWatch = unitForm.watch("isAvailable");
+
+  useEffect(() => {
+    if (!isAvailableWatch) {
+      unitForm.setValue("availableDate", "");
+    }
+  }, [isAvailableWatch]);
+
   // Mutations with enhanced error handling
   const createPropertyMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -1097,19 +1105,21 @@ export default function Admin() {
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={unitForm.control}
-                      name="availableDate"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Available Date</FormLabel>
-                          <FormControl>
-                            <Input type="date" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    {isAvailableWatch && (
+                      <FormField
+                        control={unitForm.control}
+                        name="availableDate"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Available Date</FormLabel>
+                            <FormControl>
+                              <Input type="date" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
                     <FormField
                       control={unitForm.control}
                       name="isAvailable"
