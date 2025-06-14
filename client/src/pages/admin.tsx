@@ -205,7 +205,7 @@ export default function Admin() {
   const updatePropertyMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: any }) => {
       try {
-        const response = await apiRequest(`/api/properties/${id}`, "PATCH", data);
+        const response = await apiRequest(`/api/properties/${id}`, "PUT", data);
         return response;
       } catch (error: any) {
         const errorMessage = error?.message || "Failed to update property";
@@ -272,7 +272,7 @@ export default function Admin() {
         if (!id) {
           throw new Error("Unit ID is required");
         }
-        const response = await apiRequest(`/api/units/${id}`, "PATCH", data);
+        const response = await apiRequest(`/api/units/${id}`, "PUT", data);
         return response;
       } catch (error: any) {
         const errorMessage = error?.message || "Failed to update unit";
