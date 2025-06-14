@@ -11,6 +11,7 @@ import fs from "fs/promises";
 import { existsSync } from "fs";
 import sharp from "sharp";
 import { geocodeAddress } from "./geocode";
+import { updateAllPropertyCoordinates } from "./geocode-update";
 
 function formatCoordinate(value: string | number | null | undefined): string | undefined {
   if (value === undefined || value === null) return undefined;
