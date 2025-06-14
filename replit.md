@@ -120,6 +120,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **June 14, 2025**: Updated all property coordinates with Google Maps API precision
+  - Implemented Google Maps Geocoding API integration for precise coordinates
+  - Updated all 23 properties (Atlanta and Dallas) with 5-decimal-place accuracy
+  - Created coordinate update script using authentic Google Maps data
+  - Fixed database schema issues (added missing amenities, pet_policy, floor_plans columns)
+  - Resolved JSX syntax errors in admin interface
+  - Enhanced geocoding system with proper rate limiting and error handling
+
 - **June 13, 2025**: Applied comprehensive deployment fixes to resolve initialization failures
   - Added NODE_ENV environment variable handling with proper defaults
   - Implemented production configuration validation system

@@ -494,6 +494,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.status(501).json({ message: "File upload not implemented yet" });
   });
 
+  // Update coordinates endpoint
+  app.post("/api/update-coordinates", isAuthenticated, async (req, res) => {
+    try {
+      console.log("Starting coordinate update with Google Maps API...");
+      await updateAllPropertyCoordinates();
+      res.json({ message: "Coordinates updated successfully" });
+    } catch (error) {
+      console.error("Error updating coordinates:", error);
+      res.status(500).json({ message: "Failed to update coordinates" });
+    }
+  });
+
   await populateMissingCoordinates();
 
   const httpServer = createServer(app);
