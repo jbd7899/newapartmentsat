@@ -16,7 +16,9 @@ async function populateMissingCoordinates() {
   try {
     const props = await storage.getProperties();
     for (const prop of props) {
-      if (!prop.latitude || !prop.longitude) {
+      const lat = prop.latitude ? parseFloat(prop.latitude) : NaN;
+      const lon = prop.longitude ? parseFloat(prop.longitude) : NaN;
+      if (!prop.latitude || !prop.longitude || Number.isNaN(lat) || Number.isNaN(lon)) {
         const addr = `${prop.address}, ${prop.city}, ${prop.state} ${prop.zipCode}`;
         const geo = await geocodeAddress(addr);
         if (geo) {
@@ -103,9 +105,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/properties", isAuthenticated, async (req, res) => {
     try {
-      const validatedData = insertPropertySchema.parse(req.body);
+      const validatedData = insertPropertySchema.parse(req.body) as any;
 
-      if (!validatedData.latitude || !validatedData.longitude) {
+      const lat = validatedData.latitude ? parseFloat(validatedData.latitude) : NaN;
+      const lon = validatedData.longitude ? parseFloat(validatedData.longitude) : NaN;
+
+      if (!validatedData.latitude || !validatedData.longitude || Number.isNaN(lat) || Number.isNaN(lon)) {
         const addr = `${validatedData.address}, ${validatedData.city}, ${validatedData.state} ${validatedData.zipCode}`;
         const geo = await geocodeAddress(addr);
         if (geo) {
@@ -127,10 +132,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/properties/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const validatedData = insertPropertySchema.partial().parse(req.body);
+      const validatedData = insertPropertySchema.partial().parse(req.body) as any;
+
+      const lat = validatedData.latitude ? parseFloat(validatedData.latitude) : NaN;
+      const lon = validatedData.longitude ? parseFloat(validatedData.longitude) : NaN;
 
       if (
-        (!validatedData.latitude || !validatedData.longitude) &&
+        (!validatedData.latitude || !validatedData.longitude || Number.isNaN(lat) || Number.isNaN(lon)) &&
         (validatedData.address || validatedData.city || validatedData.state || validatedData.zipCode)
       ) {
         const prop = await storage.getProperty(id);

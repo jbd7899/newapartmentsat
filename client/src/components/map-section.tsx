@@ -142,8 +142,13 @@ export default function MapSection({ cityFilter, setCityFilter, availabilityFilt
       if (!property.latitude || !property.longitude) {
         return;
       }
+
       const lat = parseFloat(property.latitude);
       const lng = parseFloat(property.longitude);
+
+      if (Number.isNaN(lat) || Number.isNaN(lng)) {
+        return;
+      }
 
       const marker = new window.google.maps.Marker({
         position: { lat, lng },
