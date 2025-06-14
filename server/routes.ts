@@ -22,7 +22,15 @@ function formatCoordinate(value: string | number | null | undefined): string | u
 
 async function populateMissingCoordinates() {
   try {
+    if (typeof (storage as any).getProperties !== 'function') {
+      console.error('Storage missing getProperties method');
+      return;
+    }
     const props = await storage.getProperties();
+    if (!Array.isArray(props)) {
+      console.error('getProperties did not return an array');
+      return;
+    }
     for (const prop of props) {
       let lat = prop.latitude ? parseFloat(prop.latitude) : NaN;
       let lon = prop.longitude ? parseFloat(prop.longitude) : NaN;
