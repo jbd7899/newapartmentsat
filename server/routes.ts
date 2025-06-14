@@ -130,6 +130,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/properties/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      if (Number.isNaN(id)) {
+        return res.status(400).json({ message: "Invalid property id" });
+      }
       const property = await storage.getProperty(id);
       
       if (!property) {
@@ -174,6 +177,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/properties/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      if (Number.isNaN(id)) {
+        return res.status(400).json({ message: "Invalid property id" });
+      }
       const validatedData = insertPropertySchema.partial().parse(req.body) as any;
 
       const lat = validatedData.latitude ? parseFloat(validatedData.latitude) : NaN;
@@ -214,6 +220,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/properties/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      if (Number.isNaN(id)) {
+        return res.status(400).json({ message: "Invalid property id" });
+      }
       const deleted = await storage.deleteProperty(id);
       
       if (!deleted) {
@@ -230,6 +239,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/units", async (req, res) => {
     try {
       const propertyId = req.query.propertyId ? parseInt(req.query.propertyId as string) : undefined;
+      if (req.query.propertyId && Number.isNaN(propertyId)) {
+        return res.status(400).json({ message: "Invalid property id" });
+      }
       const units = await storage.getUnits(propertyId);
       res.json(units);
     } catch (error) {
@@ -260,6 +272,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/units/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      if (Number.isNaN(id)) {
+        return res.status(400).json({ message: "Invalid unit id" });
+      }
       const body = {
         ...req.body,
         availableDate:
@@ -286,6 +301,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/units/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      if (Number.isNaN(id)) {
+        return res.status(400).json({ message: "Invalid unit id" });
+      }
       const deleted = await storage.deleteUnit(id);
       
       if (!deleted) {
@@ -390,6 +408,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/photos/property/:id", async (req, res) => {
     try {
       const propertyId = parseInt(req.params.id);
+      if (Number.isNaN(propertyId)) {
+        return res.status(400).json({ message: "Invalid property id" });
+      }
       const property = await storage.getProperty(propertyId);
       
       if (!property) {
@@ -493,6 +514,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/lead-submissions/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      if (Number.isNaN(id)) {
+        return res.status(400).json({ message: "Invalid submission id" });
+      }
       const updated = await storage.updateLeadSubmission(id, req.body);
       if (!updated) {
         return res.status(404).json({ message: "Submission not found" });
