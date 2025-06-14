@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building, Users, Shield, Zap } from "lucide-react";
+import { useBranding } from "@/hooks/useBranding";
 
 export default function Landing() {
+  const { data: branding } = useBranding();
   const handleLogin = () => {
     window.location.href = "/api/login";
   };
@@ -13,10 +15,16 @@ export default function Landing() {
       <header className="border-b bg-white/80 backdrop-blur-sm dark:bg-gray-800/80">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
-            <Building className="h-8 w-8 text-blue-600" />
-            <span className="text-2xl font-bold text-gray-900 dark:text-white">UrbanLiving</span>
+            <Building className="h-8 w-8" style={{ color: branding?.primaryColor || "#2563eb" }} />
+            <span className="text-2xl font-bold text-gray-900 dark:text-white">
+              {branding?.companyName || "UrbanLiving"}
+            </span>
           </div>
-          <Button onClick={handleLogin} className="bg-blue-600 hover:bg-blue-700">
+          <Button
+            onClick={handleLogin}
+            style={{ backgroundColor: branding?.primaryColor || "#2563eb" }}
+            className="hover:opacity-90"
+          >
             Sign In
           </Button>
         </div>
@@ -25,13 +33,17 @@ export default function Landing() {
       <main className="container mx-auto px-4 py-16">
         <div className="text-center max-w-4xl mx-auto mb-16">
           <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-6">
-            Modern Property Management for Urban Markets
+            {branding?.header || "Modern Property Management for Urban Markets"}
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">Streamline your rental property marketing operations with our comprehensive platform designed for small and family-owned real estate businesses.</p>
-          <Button 
+          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
+            {branding?.subtitle ||
+              "Streamline your rental property marketing operations with our comprehensive platform designed for small and family-owned real estate businesses."}
+          </p>
+          <Button
             onClick={handleLogin}
-            size="lg" 
-            className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-3"
+            size="lg"
+            style={{ backgroundColor: branding?.primaryColor || "#2563eb" }}
+            className="hover:opacity-90 text-lg px-8 py-3"
           >
             Get Started
           </Button>
@@ -94,12 +106,13 @@ export default function Landing() {
             Ready to Transform Your Property Management?
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
-            Join property managers who trust UrbanLiving to streamline their operations
+            Join property managers who trust {branding?.companyName || "UrbanLiving"} to streamline their operations
           </p>
-          <Button 
+          <Button
             onClick={handleLogin}
-            size="lg" 
-            className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-3"
+            size="lg"
+            style={{ backgroundColor: branding?.primaryColor || "#2563eb" }}
+            className="hover:opacity-90 text-lg px-8 py-3"
           >
             Sign In to Continue
           </Button>

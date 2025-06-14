@@ -5,13 +5,16 @@ import {
   users, 
   type Property, 
   type Unit, 
-  type LeadSubmission, 
+  type LeadSubmission,
   type User,
   type InsertProperty,
   type InsertUnit,
   type InsertLeadSubmission,
   type InsertUser,
-  type UpsertUser
+  type UpsertUser,
+  branding,
+  type Branding,
+  type InsertBranding
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, sql } from "drizzle-orm";
@@ -60,6 +63,10 @@ export interface IStorage {
   // Users (required for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
+
+  // Branding
+  getBranding(): Promise<Branding | undefined>;
+  updateBranding(data: InsertBranding): Promise<Branding>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -208,6 +215,25 @@ export class DatabaseStorage implements IStorage {
       .where(eq(leadSubmissions.id, id))
       .returning();
     return updated || undefined;
+  }
+
+  async getBranding(): Promise<Branding | undefined> {
+    const [record] = await db.select().from(branding).limit(1);
+    return record || undefined;
+  }
+
+  async updateBranding(data: InsertBranding): Promise<Branding> {
+    const existing = await this.getBranding();
+    if (existing) {
+      const [updated] = await db
+        .update(branding)
+        .set(data)
+        .where(eq(branding.id, existing.id))
+        .returning();
+      return updated;
+    }
+    const [created] = await db.insert(branding).values(data).returning();
+    return created;
   }
 }
 

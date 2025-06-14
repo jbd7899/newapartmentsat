@@ -3,7 +3,7 @@ import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertPropertySchema, insertUnitSchema, insertLeadSubmissionSchema } from "@shared/schema";
+import { insertPropertySchema, insertUnitSchema, insertLeadSubmissionSchema, insertBrandingSchema } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import path from "path";
@@ -83,6 +83,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Serve photo files statically
   app.use('/photos', express.static('photos'));
+
+  app.get('/api/branding', async (req, res) => {
+    try {
+      const brandingData = await storage.getBranding();
+      res.json(brandingData || null);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to fetch branding' });
+    }
+  });
+
+  app.put('/api/branding', isAuthenticated, async (req, res) => {
+    try {
+      const validated = insertBrandingSchema.partial().parse(req.body);
+      const brandingData = await storage.updateBranding(validated);
+      res.json(brandingData);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Invalid branding data', errors: error.errors });
+      }
+      res.status(500).json({ message: 'Failed to update branding' });
+    }
+  });
   // Properties routes
   app.get("/api/properties", async (req, res) => {
     try {
