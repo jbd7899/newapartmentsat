@@ -85,6 +85,22 @@ export const insertUserSchema = createInsertSchema(users).omit({
   updatedAt: true,
 });
 
+export const branding = pgTable("branding", {
+  id: serial("id").primaryKey(),
+  companyName: text("company_name").notNull().default("UrbanLiving"),
+  logoUrl: text("logo_url"),
+  primaryColor: text("primary_color").default("#2563eb"),
+  secondaryColor: text("secondary_color").default("#4f46e5"),
+  cities: text("cities").array().default([]),
+  header: text("header"),
+  subtitle: text("subtitle"),
+  footerText: text("footer_text"),
+});
+
+export const insertBrandingSchema = createInsertSchema(branding).omit({
+  id: true,
+});
+
 export type Property = typeof properties.$inferSelect;
 export type InsertProperty = z.infer<typeof insertPropertySchema>;
 export type Unit = typeof units.$inferSelect;
@@ -94,3 +110,5 @@ export type InsertLeadSubmission = z.infer<typeof insertLeadSubmissionSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type UpsertUser = typeof users.$inferInsert;
+export type Branding = typeof branding.$inferSelect;
+export type InsertBranding = z.infer<typeof insertBrandingSchema>;

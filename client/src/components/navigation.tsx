@@ -3,10 +3,12 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
+import { useBranding } from "@/hooks/useBranding";
 
 export default function Navigation() {
   const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const { data: branding } = useBranding();
 
   const navItems = [
     { href: "/", label: "Properties" },
@@ -18,7 +20,9 @@ export default function Navigation() {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link href="/">
-              <div className="text-xl font-bold text-primary cursor-pointer">UrbanLiving</div>
+              <div className="text-xl font-bold cursor-pointer" style={{ color: branding?.primaryColor || "#2563eb" }}>
+                {branding?.companyName || "UrbanLiving"}
+              </div>
             </Link>
           </div>
           

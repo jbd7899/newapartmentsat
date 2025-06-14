@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Copy, Share2 } from "lucide-react";
+import BrandingForm from "@/components/admin/branding-form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useForm } from "react-hook-form";
@@ -487,7 +488,7 @@ export default function Admin() {
       </div>
 
         <Tabs defaultValue="properties" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 bg-gray-100 rounded-lg p-1">
+          <TabsList className="grid w-full grid-cols-3 bg-gray-100 rounded-lg p-1">
             <TabsTrigger value="properties" className="flex items-center gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm">
               <Building2 className="w-4 h-4" />
               Properties & Units
@@ -495,6 +496,10 @@ export default function Admin() {
             <TabsTrigger value="leads" className="flex items-center gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm">
               <Users className="w-4 h-4" />
               Lead Submissions
+            </TabsTrigger>
+            <TabsTrigger value="branding" className="flex items-center gap-2 text-gray-600 data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm">
+              <Building2 className="w-4 h-4" />
+              Branding
             </TabsTrigger>
           </TabsList>
 
@@ -1284,6 +1289,9 @@ export default function Admin() {
                 </div>
               </>
             )}
+          </TabsContent>
+          <TabsContent value="branding" className="space-y-6">
+            <BrandingForm />
           </TabsContent>
         </Tabs>
       </div>
