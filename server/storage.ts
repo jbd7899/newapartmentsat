@@ -16,6 +16,13 @@ import {
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 
+function formatCoordinate(value: string | number | null | undefined): string | undefined {
+  if (value === undefined || value === null) return undefined;
+  const num = typeof value === 'number' ? value : parseFloat(value);
+  if (Number.isNaN(num)) return undefined;
+  return num.toFixed(5);
+}
+
 export interface IStorage {
   // Properties
   getProperties(filters?: { city?: string; isAvailable?: boolean }): Promise<Property[]>;
@@ -103,7 +110,11 @@ export class DatabaseStorage implements IStorage {
   async createProperty(property: InsertProperty): Promise<Property> {
     const [newProperty] = await db
       .insert(properties)
-      .values(property)
+      .values({
+        ...property,
+        latitude: formatCoordinate(property.latitude) as any,
+        longitude: formatCoordinate(property.longitude) as any,
+      })
       .returning();
     return newProperty;
   }
@@ -111,7 +122,11 @@ export class DatabaseStorage implements IStorage {
   async updateProperty(id: number, updates: Partial<InsertProperty>): Promise<Property | undefined> {
     const [updated] = await db
       .update(properties)
-      .set(updates)
+      .set({
+        ...updates,
+        latitude: formatCoordinate(updates.latitude) as any,
+        longitude: formatCoordinate(updates.longitude) as any,
+      })
       .where(eq(properties.id, id))
       .returning();
     return updated || undefined;
