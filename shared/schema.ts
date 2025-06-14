@@ -27,6 +27,8 @@ export const units = pgTable("units", {
   id: serial("id").primaryKey(),
   propertyId: integer("property_id").notNull(),
   unitNumber: text("unit_number").notNull(),
+  bedrooms: integer("bedrooms").notNull().default(0),
+  bathrooms: text("bathrooms").notNull().default(""),
   isAvailable: boolean("is_available").notNull().default(false),
   availableDate: timestamp("available_date"),
   rent: integer("rent"), // in cents

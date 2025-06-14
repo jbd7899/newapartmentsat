@@ -109,9 +109,9 @@ export class DatabaseStorage implements IStorage {
 
     // Sample units
     const sampleUnits: Unit[] = [
-      { id: 1, propertyId: 1, unitNumber: "101", isAvailable: true, availableDate: new Date(), rent: 185000, images: [] },
-      { id: 2, propertyId: 1, unitNumber: "102", isAvailable: false, availableDate: null, rent: 185000, images: [] },
-      { id: 3, propertyId: 2, unitNumber: "201", isAvailable: true, availableDate: new Date(), rent: 125000, images: [] },
+      { id: 1, propertyId: 1, unitNumber: "101", bedrooms: 2, bathrooms: "2", isAvailable: true, availableDate: new Date(), rent: 185000, images: [] },
+      { id: 2, propertyId: 1, unitNumber: "102", bedrooms: 2, bathrooms: "2", isAvailable: false, availableDate: null, rent: 185000, images: [] },
+      { id: 3, propertyId: 2, unitNumber: "201", bedrooms: 0, bathrooms: "1", isAvailable: true, availableDate: new Date(), rent: 125000, images: [] },
     ];
 
     sampleUnits.forEach(unit => {
@@ -188,13 +188,15 @@ export class DatabaseStorage implements IStorage {
 
   async createUnit(unit: InsertUnit): Promise<Unit> {
     const id = this.currentUnitId++;
-    const newUnit: Unit = { 
-      ...unit, 
+    const newUnit: Unit = {
+      ...unit,
       id,
       isAvailable: unit.isAvailable ?? false,
       images: unit.images || [],
       availableDate: unit.availableDate || null,
-      rent: unit.rent || null
+      rent: unit.rent || null,
+      bedrooms: unit.bedrooms ?? 0,
+      bathrooms: unit.bathrooms ?? ""
     };
     this.units.set(id, newUnit);
     return newUnit;

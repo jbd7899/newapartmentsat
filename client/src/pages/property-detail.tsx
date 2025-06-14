@@ -145,14 +145,18 @@ export default function PropertyDetail() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Bed className="w-4 h-4" />
-                <span>{property.bedrooms === 0 ? 'Studio' : `${property.bedrooms} bed`}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Bath className="w-4 h-4" />
-                <span>{property.bathrooms} bath</span>
-              </div>
+              {property.totalUnits === 1 && (
+                <>
+                  <div className="flex items-center space-x-2">
+                    <Bed className="w-4 h-4" />
+                    <span>{property.bedrooms === 0 ? 'Studio' : `${property.bedrooms} bed`}</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Bath className="w-4 h-4" />
+                    <span>{property.bathrooms} bath</span>
+                  </div>
+                </>
+              )}
               <div className="flex items-center space-x-2">
                 <Building className="w-4 h-4" />
                 <span>{property.totalUnits} units</span>
@@ -309,15 +313,18 @@ export default function PropertyDetail() {
                       <div key={unit.id} className="border rounded-lg p-4">
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center space-x-4">
-                            <span className="font-medium">Unit {unit.unitNumber}</span>
-                            <Badge variant={unit.isAvailable ? "default" : "secondary"}>
-                              {unit.isAvailable ? "Available" : "Leased"}
-                            </Badge>
-                            {unit.rent && (
-                              <span className="text-sm text-muted-foreground">
-                                ${(unit.rent / 100).toLocaleString()}/month
-                              </span>
-                            )}
+                          <span className="font-medium">Unit {unit.unitNumber}</span>
+                          <Badge variant={unit.isAvailable ? "default" : "secondary"}>
+                            {unit.isAvailable ? "Available" : "Leased"}
+                          </Badge>
+                          <span className="text-sm text-muted-foreground">
+                            {unit.bedrooms} bed • {unit.bathrooms} bath
+                          </span>
+                          {unit.rent && (
+                            <span className="text-sm text-muted-foreground">
+                              ${(unit.rent / 100).toLocaleString()}/month
+                            </span>
+                          )}
                           </div>
                           <div className="flex items-center space-x-4">
                             {unit.availableDate && (
