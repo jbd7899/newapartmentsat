@@ -33,11 +33,11 @@ export default function MapSection({ cityFilter, setCityFilter, availabilityFilt
   const getCityCenter = (city: string) => {
     switch (city) {
       case "atlanta":
-        return { lat: 33.7490, lng: -84.3880 };
+        return { lat: 33.74900, lng: -84.38800 };
       case "dallas":
-        return { lat: 32.7767, lng: -96.7970 };
+        return { lat: 32.77670, lng: -96.79700 };
       default:
-        return { lat: 33.7490, lng: -84.3880 }; // Default to Atlanta
+        return { lat: 33.74900, lng: -84.38800 }; // Default to Atlanta
     }
   };
 

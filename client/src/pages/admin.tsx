@@ -762,7 +762,7 @@ export default function Admin() {
                                 <FormItem>
                                   <FormLabel>Latitude</FormLabel>
                                   <FormControl>
-                                    <Input {...field} placeholder="33.7490" />
+                                    <Input {...field} placeholder="33.74900" />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -775,7 +775,7 @@ export default function Admin() {
                                 <FormItem>
                                   <FormLabel>Longitude</FormLabel>
                                   <FormControl>
-                                    <Input {...field} placeholder="-84.3880" />
+                                    <Input {...field} placeholder="-84.38800" />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>

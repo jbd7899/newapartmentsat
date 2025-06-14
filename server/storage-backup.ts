@@ -15,6 +15,13 @@ import {
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 
+function formatCoordinate(value: string | number | null | undefined): string | undefined {
+  if (value === undefined || value === null) return undefined;
+  const num = typeof value === 'number' ? value : parseFloat(value);
+  if (Number.isNaN(num)) return undefined;
+  return num.toFixed(5);
+}
+
 export interface IStorage {
   // Properties
   getProperties(filters?: { city?: string; isAvailable?: boolean }): Promise<Property[]>;
@@ -72,8 +79,8 @@ export class DatabaseStorage implements IStorage {
         description: "Modern loft-style apartments in the heart of Midtown Atlanta",
         neighborhood: "Midtown",
         images: ["https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"],
-        latitude: "33.7701",
-        longitude: "-84.3870",
+        latitude: "33.77010",
+        longitude: "-84.38700",
         createdAt: new Date(),
       },
       {
@@ -89,8 +96,8 @@ export class DatabaseStorage implements IStorage {
         description: "Modern studio apartments with stunning city views",
         neighborhood: "Downtown",
         images: ["https://images.unsplash.com/photo-1484154218962-a197022b5858?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"],
-        latitude: "32.7767",
-        longitude: "-96.7970",
+        latitude: "32.77670",
+        longitude: "-96.79700",
         createdAt: new Date(),
       }
     ];
@@ -144,8 +151,8 @@ export class DatabaseStorage implements IStorage {
       images: property.images || [],
       description: property.description || null,
       neighborhood: property.neighborhood || null,
-      latitude: property.latitude || null,
-      longitude: property.longitude || null,
+      latitude: formatCoordinate(property.latitude) || null,
+      longitude: formatCoordinate(property.longitude) || null,
       createdAt: new Date(),
     };
     this.properties.set(id, newProperty);
@@ -155,8 +162,13 @@ export class DatabaseStorage implements IStorage {
   async updateProperty(id: number, updates: Partial<InsertProperty>): Promise<Property | undefined> {
     const existing = this.properties.get(id);
     if (!existing) return undefined;
-    
-    const updated = { ...existing, ...updates };
+
+    const updated = {
+      ...existing,
+      ...updates,
+      latitude: updates.latitude !== undefined ? formatCoordinate(updates.latitude) : existing.latitude,
+      longitude: updates.longitude !== undefined ? formatCoordinate(updates.longitude) : existing.longitude,
+    };
     this.properties.set(id, updated);
     return updated;
   }

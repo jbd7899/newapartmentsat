@@ -12,7 +12,7 @@ import { existsSync } from "fs";
 import sharp from "sharp";
 import { geocodeAddress } from "./geocode";
 
-function formatCoordinate(value: string | number | undefined): string | undefined {
+function formatCoordinate(value: string | number | null | undefined): string | undefined {
   if (value === undefined || value === null) return undefined;
   const num = typeof value === 'number' ? value : parseFloat(value);
   if (Number.isNaN(num)) return undefined;
@@ -23,14 +23,23 @@ async function populateMissingCoordinates() {
   try {
     const props = await storage.getProperties();
     for (const prop of props) {
-      const lat = prop.latitude ? parseFloat(prop.latitude) : NaN;
-      const lon = prop.longitude ? parseFloat(prop.longitude) : NaN;
+      let lat = prop.latitude ? parseFloat(prop.latitude) : NaN;
+      let lon = prop.longitude ? parseFloat(prop.longitude) : NaN;
+
       if (!prop.latitude || !prop.longitude || Number.isNaN(lat) || Number.isNaN(lon)) {
         const addr = `${prop.address}, ${prop.city}, ${prop.state} ${prop.zipCode}`;
         const geo = await geocodeAddress(addr);
         if (geo) {
-          await storage.updateProperty(prop.id, { latitude: geo.lat, longitude: geo.lon });
+          lat = parseFloat(geo.lat);
+          lon = parseFloat(geo.lon);
         }
+      }
+
+      const formattedLat = formatCoordinate(lat);
+      const formattedLon = formatCoordinate(lon);
+
+      if (formattedLat && formattedLon && (formattedLat !== prop.latitude || formattedLon !== prop.longitude)) {
+        await storage.updateProperty(prop.id, { latitude: formattedLat, longitude: formattedLon });
       }
     }
   } catch (err) {
