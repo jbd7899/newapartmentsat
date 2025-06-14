@@ -2,6 +2,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import express from 'express';
 import request from 'supertest';
 
+process.env.DATABASE_URL = 'postgres://localhost/test';
+
 vi.mock('./storage', () => {
   return {
     storage: {
@@ -10,6 +12,12 @@ vi.mock('./storage', () => {
     }
   };
 });
+vi.mock('./db', () => ({ db: {} }));
+vi.mock('./geocode-update', () => ({ updateAllPropertyCoordinates: vi.fn() }));
+vi.mock('./replitAuth', () => ({
+  setupAuth: vi.fn(),
+  isAuthenticated: (_req: any, _res: any, next: any) => next(),
+}));
 
 import { registerRoutes } from './routes';
 import { storage } from './storage';
