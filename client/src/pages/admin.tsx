@@ -26,6 +26,7 @@ import { insertPropertySchema, insertUnitSchema } from "@shared/schema";
 import type { Property, Unit, LeadSubmission } from "@shared/schema";
 import Metrics from "@/components/admin/metrics";
 import SearchBox from "@/components/admin/search-box";
+import PropertyThumbnail from "@/components/admin/property-thumbnail";
 import { 
   Plus, 
   Edit, 
@@ -850,6 +851,7 @@ export default function Admin() {
                                   <div className="bg-blue-100 p-2 rounded-lg">
                                     <Building2 className="w-5 h-5 text-blue-600" />
                                   </div>
+                                  <PropertyThumbnail property={property} />
                                   <div>
                                     <CardTitle className="text-xl font-semibold text-gray-900">
                                       {property.name}
