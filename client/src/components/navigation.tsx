@@ -5,14 +5,21 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { useBranding } from "@/hooks/useBranding";
 
-export default function Navigation() {
+interface NavItem {
+  href: string;
+  label: string;
+}
+
+interface NavigationProps {
+  navItems?: NavItem[];
+}
+
+export default function Navigation({ navItems }: NavigationProps) {
   const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const { data: branding } = useBranding();
 
-  const navItems = [
-    { href: "/", label: "Properties" },
-  ];
+  const items: NavItem[] = navItems || [{ href: "/", label: "Properties" }];
 
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">
@@ -29,7 +36,7 @@ export default function Navigation() {
           {/* Desktop Navigation */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-8">
-              {navItems.map((item) => (
+              {items.map((item) => (
                 <Link key={item.href} href={item.href}>
                   <span className="text-foreground hover:text-primary px-3 py-2 text-sm font-medium transition-colors cursor-pointer">
                     {item.label}
@@ -54,7 +61,7 @@ export default function Navigation() {
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] sm:w-[400px]">
                 <div className="flex flex-col space-y-4 mt-8">
-                  {navItems.map((item) => (
+                  {items.map((item) => (
                     <Link key={item.href} href={item.href}>
                       <span 
                         className="text-foreground hover:text-primary text-lg font-medium cursor-pointer"

@@ -46,6 +46,9 @@ export default function NeighborhoodSection() {
           <p className="text-gray-600 max-w-2xl mx-auto">
             Our properties are located in the heart of the most dynamic and culturally rich areas
           </p>
+          <p className="text-gray-600 max-w-2xl mx-auto mt-2">
+            Click each neighborhood below to explore local hotspots and attractions.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -60,7 +63,8 @@ export default function NeighborhoodSection() {
                 />
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-2">{neighborhood.name}</h3>
-              <p className="text-gray-600">{neighborhood.description}</p>
+              <p className="text-gray-600 mb-2">{neighborhood.description}</p>
+              <a href="#contact" className="text-primary hover:underline text-sm">Learn more</a>
             </div>
           ))}
         </div>
