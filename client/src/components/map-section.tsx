@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MapPin, Plus, Minus } from "lucide-react";
+import { Link } from "wouter";
+import { useBranding } from "@/hooks/useBranding";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import type { Property } from "@shared/schema";
 
@@ -26,6 +28,7 @@ export default function MapSection({ cityFilter, setCityFilter, availabilityFilt
   const [mapError, setMapError] = useState(false);
   const [mapInstance, setMapInstance] = useState<any>(null);
   const [clusterer, setClusterer] = useState<MarkerClusterer | null>(null);
+  const { data: branding } = useBranding();
 
   const { data: properties = [] } = useQuery<Property[]>({
     queryKey: ["/api/properties"],
@@ -316,6 +319,16 @@ export default function MapSection({ cityFilter, setCityFilter, availabilityFilt
                   </Button>
                 </div>
               )}
+        </div>
+        <div className="text-center mt-8">
+          <Link href="#contact">
+            <Button
+              className="text-white hover:opacity-90"
+              style={{ backgroundColor: branding?.primaryColor || "#2563eb" }}
+            >
+              Schedule a Viewing
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

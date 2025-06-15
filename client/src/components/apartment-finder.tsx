@@ -69,8 +69,11 @@ export default function ApartmentFinder() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center text-white mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Find Your Perfect Home</h2>
-          <p className="text-xl opacity-90">
+          <p className="text-xl opacity-90 mb-4">
             Let us help you discover the ideal rental property that matches your lifestyle
+          </p>
+          <p className="max-w-2xl mx-auto opacity-80">
+            "The team was incredibly responsive and matched me with a great apartment within days!"
           </p>
         </div>
 

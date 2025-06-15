@@ -9,7 +9,9 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
             <div className="text-2xl font-bold mb-4">{branding?.companyName || "UrbanLiving"}</div>
-            <p className="text-gray-300 mb-6 max-w-md">Locally owned and managed rental properties.</p>
+            <p className="text-gray-300 mb-6 max-w-md">
+              {branding?.footerText || "Locally owned and managed rental properties."}
+            </p>
             
           </div>
           
