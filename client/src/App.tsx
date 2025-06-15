@@ -32,14 +32,20 @@ function Router() {
   );
 }
 
-function App() {
+function AppContent() {
   useApplyBranding();
   return (
+    <TooltipProvider>
+      <Toaster />
+      <Router />
+    </TooltipProvider>
+  );
+}
+
+function App() {
+  return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-      </TooltipProvider>
+      <AppContent />
     </QueryClientProvider>
   );
 }
