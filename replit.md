@@ -14,18 +14,21 @@ UrbanLiving is a modern property management and rental platform designed for fam
 - **State Management**: TanStack Query (React Query) for server state management
 - **Routing**: Wouter for lightweight client-side routing
 - **Forms**: React Hook Form with Zod validation
+- **Authentication**: Replit Auth with session-based authentication
 
 ### Backend Architecture
 - **Runtime**: Node.js with Express.js framework
 - **Database**: PostgreSQL with Drizzle ORM for type-safe database operations
+- **Authentication**: Replit Auth with PostgreSQL session storage
 - **File Storage**: Replit Object Storage for photo management
 - **Image Processing**: Sharp for image optimization and compression
-- **Geocoding**: OpenStreetMap Nominatim API for address-to-coordinates conversion
+- **Geocoding**: Google Maps Geocoding API for precise coordinates (5 decimal places)
 
 ### Development Environment
 - **Platform**: Replit with Node.js 20 and PostgreSQL 16 modules
 - **Package Manager**: npm with lockfile version 3
 - **TypeScript**: Comprehensive type checking across shared schemas
+- **Hot Reload**: Vite HMR for frontend, tsx watch mode for backend
 
 ## Key Components
 
@@ -118,6 +121,44 @@ UrbanLiving is a modern property management and rental platform designed for fam
 
 Preferred communication style: Simple, everyday language.
 
+## Development Guidelines for AI Collaborators
+
+### Safe Development Practices
+- **Database**: Use `execute_sql_tool` for schema inspection and modifications
+- **Testing**: Always test API endpoints with curl before making frontend changes
+- **Authentication**: Respect existing Replit Auth implementation - don't modify auth flows
+- **Hot Reload**: Use Vite HMR for frontend changes, backend auto-restarts via tsx
+- **Error Handling**: Check both browser console and server logs for debugging
+
+### Critical Database Schema
+The application uses PostgreSQL with these core tables:
+- `properties`: Main property data with coordinates (lat/lng to 5 decimal places)
+- `units`: Individual rental units linked to properties
+- `lead_submissions`: Prospect inquiries with contact status tracking
+- `branding`: Customizable company branding and content
+- `users`: Replit Auth user data
+- `sessions`: Session storage for authentication
+
+### API Endpoint Structure
+- `GET/POST /api/properties` - Property CRUD operations
+- `GET/POST /api/units` - Unit management
+- `GET/POST /api/lead-submissions` - Lead capture and management
+- `GET/PUT /api/branding` - Branding customization
+- `/api/auth/*` - Replit Auth integration
+- `/api/photos/*` - Photo upload and serving
+
+### Component Architecture
+- **Pages**: `/client/src/pages/` - Route components
+- **Components**: `/client/src/components/` - Reusable UI components
+- **Admin Components**: `/client/src/components/admin/` - Admin-specific components
+- **Hooks**: `/client/src/hooks/` - Custom React hooks
+- **Shared**: `/shared/schema.ts` - Database schema and types
+
+### Environment Requirements
+- `GOOGLE_API_KEY` or `GOOGLE_MAPS_API_KEY` for geocoding
+- `DATABASE_URL` for PostgreSQL connection
+- Replit Auth handles user authentication automatically
+
 ## Recent Changes
 
 - **June 14, 2025**: Updated all property coordinates with Google Maps API precision
@@ -131,6 +172,7 @@ Preferred communication style: Simple, everyday language.
   - Added missing contacted column to lead_submissions table
   - Created default branding record and synchronized schema
   - Updated landing page heading to "Modern Property Management Marketing"
+  - Fixed branding tab error in admin dashboard with improved form validation
 
 - **June 13, 2025**: Applied comprehensive deployment fixes to resolve initialization failures
   - Added NODE_ENV environment variable handling with proper defaults
