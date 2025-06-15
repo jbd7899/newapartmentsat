@@ -10,6 +10,7 @@ import PropertyDetail from "@/pages/property-detail";
 import Admin from "@/pages/admin";
 import PublicHome from "@/pages/public-home";
 import NotFound from "@/pages/not-found";
+import { useApplyBranding } from "@/hooks/useApplyBranding";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -32,6 +33,7 @@ function Router() {
 }
 
 function App() {
+  useApplyBranding();
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
