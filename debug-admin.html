@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Debug</title>
+</head>
+<body>
+    <h1>Admin Page Debug</h1>
+    <div id="status">Loading...</div>
+    <div id="auth-status"></div>
+    <div id="api-status"></div>
+    
+    <script>
+        async function checkAPIs() {
+            const statusDiv = document.getElementById('status');
+            const authDiv = document.getElementById('auth-status');
+            const apiDiv = document.getElementById('api-status');
+            
+            try {
+                // Check auth
+                const authRes = await fetch('/api/auth/user', { credentials: 'include' });
+                authDiv.innerHTML = `Auth: ${authRes.status} - ${authRes.ok ? 'OK' : 'Failed'}`;
+                
+                // Check APIs
+                const propertiesRes = await fetch('/api/properties');
+                const unitsRes = await fetch('/api/units');
+                const brandingRes = await fetch('/api/branding');
+                
+                apiDiv.innerHTML = `
+                    Properties: ${propertiesRes.status}<br>
+                    Units: ${unitsRes.status}<br>
+                    Branding: ${brandingRes.status}
+                `;
+                
+                statusDiv.innerHTML = 'Debug complete';
+            } catch (error) {
+                statusDiv.innerHTML = `Error: ${error.message}`;
+            }
+        }
+        
+        checkAPIs();
+    </script>
+</body>
+</html>
