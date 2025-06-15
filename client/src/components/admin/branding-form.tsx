@@ -16,7 +16,16 @@ export default function BrandingForm() {
 
   const form = useForm<Partial<Branding>>({
     resolver: zodResolver(insertBrandingSchema.partial()),
-    defaultValues: {},
+    defaultValues: {
+      companyName: "",
+      logoUrl: "",
+      primaryColor: "#2563eb",
+      secondaryColor: "#4f46e5",
+      cities: [],
+      header: "",
+      subtitle: "",
+      footerText: "",
+    },
   });
 
   useEffect(() => {
@@ -31,6 +40,9 @@ export default function BrandingForm() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/branding"] });
+    },
+    onError: (error) => {
+      console.error("Branding update failed:", error);
     },
   });
 
@@ -57,7 +69,12 @@ export default function BrandingForm() {
       </div>
       <div>
         <Label>Cities (comma separated)</Label>
-        <Input {...form.register("cities", { setValueAs: v => v.split(',').map((c: string) => c.trim()).filter(Boolean) })} />
+        <Input {...form.register("cities", { 
+          setValueAs: (v) => {
+            if (!v || typeof v !== 'string') return [];
+            return v.split(',').map((c) => c.trim()).filter(Boolean);
+          }
+        })} />
       </div>
       <div>
         <Label>Header</Label>
