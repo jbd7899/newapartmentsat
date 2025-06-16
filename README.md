@@ -101,6 +101,7 @@ The application uses PostgreSQL with these core tables:
 - `header`: Main heading text
 - `subtitle`: Subtitle text
 - `footerText`: Footer content
+- `contactInfo`: Contact information displayed in the footer
 
 ## API Endpoints
 
