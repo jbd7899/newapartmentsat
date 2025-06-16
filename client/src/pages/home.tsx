@@ -52,7 +52,7 @@ export default function Home() {
             </div>
             
             <div className="flex items-center space-x-4">
-              <Link href="/admin">
+              <Link href="/admin/dashboard">
                 <Button variant="outline" size="sm">
                   <Users className="w-4 h-4 mr-2" />
                   Admin Dashboard
