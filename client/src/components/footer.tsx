@@ -3,6 +3,13 @@ import { useBranding } from "@/hooks/useBranding";
 
 export default function Footer() {
   const { data: branding } = useBranding();
+  const contactItems = branding?.contactInfo
+    ? branding.contactInfo.split("\n").filter(Boolean)
+    : [
+        "Atlanta Office (404) 555-0123",
+        "Dallas Office (214) 555-0123",
+        "hello@urbanliving.com",
+      ];
   return (
     <footer className="bg-neutral text-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -26,18 +33,9 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">Contact Info</h3>
             <ul className="space-y-2 text-gray-300">
-              <li>
-                <span className="block">Atlanta Office</span>
-                <span className="text-sm">(404) 555-0123</span>
-              </li>
-              <li>
-                <span className="block">Dallas Office</span>
-                <span className="text-sm">(214) 555-0123</span>
-              </li>
-              <li>
-                <span className="block">Email</span>
-                <span className="text-sm">hello@urbanliving.com</span>
-              </li>
+              {contactItems.map((item, idx) => (
+                <li key={idx}>{item}</li>
+              ))}
             </ul>
           </div>
         </div>

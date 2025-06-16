@@ -25,6 +25,7 @@ export default function BrandingForm() {
       header: "",
       subtitle: "",
       footerText: "",
+      contactInfo: "",
     },
   });
 
@@ -87,6 +88,10 @@ export default function BrandingForm() {
       <div>
         <Label>Footer Text</Label>
         <Textarea {...form.register("footerText")} />
+      </div>
+      <div>
+        <Label>Contact Info (one item per line)</Label>
+        <Textarea {...form.register("contactInfo")} />
       </div>
       <Button type="submit" disabled={mutation.isPending} className="bg-primary text-white hover:bg-primary/90">
         Save Branding

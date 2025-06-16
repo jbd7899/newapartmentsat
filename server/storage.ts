@@ -91,7 +91,8 @@ export async function initStorage() {
       cities text[],
       header text,
       subtitle text,
-      footer_text text
+      footer_text text,
+      contact_info text
     );
   `);
 }

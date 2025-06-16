@@ -97,6 +97,7 @@ export const branding = pgTable("branding", {
   header: text("header"),
   subtitle: text("subtitle"),
   footerText: text("footer_text"),
+  contactInfo: text("contact_info"),
 });
 
 export const insertBrandingSchema = createInsertSchema(branding).omit({
