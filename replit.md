@@ -159,6 +159,29 @@ The application uses PostgreSQL with these core tables:
 - `DATABASE_URL` for PostgreSQL connection
 - Replit Auth handles user authentication automatically
 
+### Database Connection Details for AI Developers
+**Direct Database Access:**
+```
+Database URL: postgresql://neondb_owner:npg_G2DvWtMI8HLy@ep-small-poetry-a64uyunz.us-west-2.aws.neon.tech/neondb?sslmode=require
+Host: ep-small-poetry-a64uyunz.us-west-2.aws.neon.tech
+Port: 5432
+Database: neondb
+Username: neondb_owner
+Password: npg_G2DvWtMI8HLy
+SSL Mode: require
+```
+
+**Access Permissions:**
+- Full read/write access to all tables
+- Schema modification capabilities
+- Administrative privileges
+
+**Safety Requirements:**
+- Use execute_sql_tool for database operations
+- Always backup data before schema changes
+- Test queries before executing on production data
+- Document all database modifications
+
 ## Recent Changes
 
 - **June 14, 2025**: Updated all property coordinates with Google Maps API precision

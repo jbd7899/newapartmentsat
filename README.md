@@ -150,6 +150,62 @@ Additional Replit-specific variables are automatically provided:
 - `ISSUER_URL` – Replit OIDC issuer URL
 - `REPL_ID` – Replit project identifier
 
+## Database Access for AI Developers
+
+### Connection Information
+The PostgreSQL database is hosted on Neon and accessible with these credentials:
+
+**Database URL:** 
+```
+postgresql://neondb_owner:npg_G2DvWtMI8HLy@ep-small-poetry-a64uyunz.us-west-2.aws.neon.tech/neondb?sslmode=require
+```
+
+**Individual Connection Parameters:**
+- **Host:** `ep-small-poetry-a64uyunz.us-west-2.aws.neon.tech`
+- **Port:** `5432`
+- **Database:** `neondb` 
+- **Username:** `neondb_owner`
+- **Password:** `npg_G2DvWtMI8HLy`
+- **SSL Mode:** `require`
+
+### Direct Database Access
+AI developers can connect directly to the database using:
+
+1. **psql command line:**
+   ```bash
+   psql "postgresql://neondb_owner:npg_G2DvWtMI8HLy@ep-small-poetry-a64uyunz.us-west-2.aws.neon.tech/neondb?sslmode=require"
+   ```
+
+2. **Programming languages:**
+   ```javascript
+   // Node.js with pg
+   const { Pool } = require('pg');
+   const pool = new Pool({
+     connectionString: 'postgresql://neondb_owner:npg_G2DvWtMI8HLy@ep-small-poetry-a64uyunz.us-west-2.aws.neon.tech/neondb?sslmode=require'
+   });
+   ```
+
+   ```python
+   # Python with psycopg2
+   import psycopg2
+   conn = psycopg2.connect(
+     "postgresql://neondb_owner:npg_G2DvWtMI8HLy@ep-small-poetry-a64uyunz.us-west-2.aws.neon.tech/neondb?sslmode=require"
+   )
+   ```
+
+### Access Permissions
+- **Read Access:** Full SELECT permissions on all tables
+- **Write Access:** Full INSERT, UPDATE, DELETE permissions
+- **Schema Access:** Can CREATE, ALTER, DROP tables and indexes
+- **Admin Access:** Full database administration capabilities
+
+### Safety Guidelines for Database Access
+1. **Always backup data** before making schema changes
+2. **Use transactions** for multi-table operations
+3. **Test queries** on development data first
+4. **Avoid DROP operations** unless explicitly required
+5. **Document changes** made to the database structure
+
 ## Development Guidelines for AI Collaborators
 
 ### Safe Development Practices
