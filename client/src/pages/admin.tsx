@@ -490,11 +490,11 @@ export default function Admin() {
               <CardTitle className="text-sm font-medium">Public Listing Link</CardTitle>
             </CardHeader>
             <CardContent className="flex items-center justify-between">
-              <span className="text-sm break-all">{window.location.origin + '/public'}</span>
+              <span className="text-sm break-all">{window.location.origin}</span>
               <Button
                 size="icon"
                 variant="ghost"
-                onClick={() => navigator.clipboard.writeText(window.location.origin + '/public')}
+                onClick={() => navigator.clipboard.writeText(window.location.origin)}
                 title="Copy link"
               >
                 <Copy className="w-4 h-4" />
